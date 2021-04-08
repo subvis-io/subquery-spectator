@@ -1,0 +1,29 @@
+{
+  "name": "subql-spectator",
+  "version": "0.0.1",
+  "description": "Substrate slots auction data collector",
+  "main": "dist/index.js",
+  "scripts": {
+    "prebuild": "npm run codegen",
+    "build": "tsc -b",
+    "prepack": "rm -rf dist && npm build",
+    "test": "jest",
+    "start": "subql-node -f ./ --local -- --inspect",
+    "codegen": "./node_modules/.bin/subql codegen"
+  },
+  "homepage": "https://github.com/subquery/subql-starter",
+  "repository": "github:subquery/subql-starter",
+  "files": [
+    "dist",
+    "schema.graphql",
+    "project.yaml"
+  ],
+  "author": "Kerwin Weng",
+  "license": "Apache-2.0",
+  "devDependencies": {
+    "@polkadot/api": "^4",
+    "@subql/cli": "^0.8.0",
+    "@subql/types": "^0.6.1",
+    "typescript": "^4.1.3"
+  }
+}

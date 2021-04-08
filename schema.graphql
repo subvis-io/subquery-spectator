@@ -1,0 +1,113 @@
+
+type Auction @entity {
+  id: ID! #id is a required field
+  blockNum: Int!
+  status: String!
+  bids: [Bid]! @derivedFrom(field: "auction")
+  winningBidIds: [WinningBid]! @derivedFrom(field: "auction")
+  leaseStart: Int!
+  leaseEnd: Int!
+  started: Int!
+  closingStart: Int!
+  closingEnd: Int!
+  resultBlock: Int
+  parachains: [AuctionParachain]! @derivedFrom(field: "auction")
+}
+
+type Account @entity {
+  id: ID!
+  isFund: Boolean!
+}
+
+type Parachain @entity {
+  id: ID!
+  paraId: Int!
+  createdAt: Date!
+  creationBlock: Int!
+  deregistered: Boolean!
+  reserved: BigInt!
+  creator: Account! 
+  leased: [ParachainLeased]! @derivedFrom(field: "parachain")
+  onboarded: Boolean!
+  bids: [Bid]! @derivedFrom(field: "parachain")
+  funds: [Crowdloan]! @derivedFrom(field: "parachain")
+  # activeFund: Crowdloan
+  # latestBid: Bid
+  winningBlocks: [WinningBlock] @derivedFrom(field: "parachain") # should query individually for active auction
+  chronicle: Chronicle
+}
+
+type Crowdloan @entity {
+  id: ID! # generated fund address
+  parachain: Parachain
+  retiring: Boolean!
+  auction: Auction!
+  depositor: Account!
+  cap: BigInt!
+  raised: BigInt!
+  lockExpiredBlock: Int!
+  contributions: [Contribution] @derivedFrom(field: "fund") # should included only for specific Fund
+}
+
+type ParachainLeased @entity {
+  id: ID!
+  parachain: Parachain!
+  slotStart: Int!
+  slotEnd: Int!
+}
+
+type AuctionParachain @entity {
+  id: ID!
+  auction: Auction!
+  parachain: Parachain!
+}
+
+type WinningBid @entity {
+  id: ID!
+  bid: Bid!
+  auction: Auction!
+  slotStart: Int!
+  slotEnd: Int!
+}
+
+type WinningBlock @entity {
+  id: ID!
+  auction: Auction!
+  parachain: Parachain!
+  blockNum: Int!
+  bid: Bid!
+  slotStart: Int!
+  slotEnd: Int!
+}
+
+type Bid @entity {
+  id: ID!
+  auction: Auction!
+  blockNum: Int!
+  parachain: Parachain!
+  isCrowdloan: Boolean!
+  value: BigInt!
+  fund: Crowdloan
+  slotStart: Int!
+  slotEnd: Int!
+  bidder: Account
+}
+
+type Contribution @entity {
+  id: ID!
+  Auction: Auction!
+  Account: Account!
+  parachain: Parachain!
+  fund: Crowdloan!
+  value: BigInt!
+  blockNum: Int!
+}
+
+type Chronicle @entity {
+  id: ID! # Static 'Chronicle'
+  curAuction: Auction
+  curLease: Int!
+  curLeaseStart: Int!
+  curLeaseEnd: Int!
+  parachains: [Parachain]! @derivedFrom(field: "chronicle")
+}
