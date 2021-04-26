@@ -1,9 +1,7 @@
-// Copyright 2020-2021 OnFinality Limited authors & contributors
-// SPDX-License-Identifier: Apache-2.0
-
 // Auto-generated , DO NOT EDIT
 import {Entity} from "@subql/types";
 import assert from 'assert';
+
 
 export class Parachain implements Entity {
 
@@ -16,17 +14,15 @@ export class Parachain implements Entity {
 
     public paraId: number;
 
-    public createdAt: Date;
+    public createdAt?: Date;
 
-    public creationBlock: number;
+    public creationBlock?: number;
 
     public deregistered: boolean;
 
-    public reserved: bigint;
+    public deposit: bigint;
 
-    public creatorId: string;
-
-    public onboarded: boolean;
+    public manager: string;
 
     public chronicleId?: string;
 
@@ -41,8 +37,8 @@ export class Parachain implements Entity {
         await store.remove('Parachain', id.toString());
     }
 
-    static async get(id:string): Promise<Parachain>{
-        assert(id !== null, "Cannot get Parachain entity without an ID");
+    static async get(id:string): Promise<Parachain | undefined>{
+        assert((id !== null && id !== undefined), "Cannot get Parachain entity without an ID");
         const record = await store.get('Parachain', id.toString());
         if (record){
             return Parachain.create(record);
@@ -50,6 +46,8 @@ export class Parachain implements Entity {
             return;
         }
     }
+
+
 
     static create(record){
         let entity = new Parachain(record.id);

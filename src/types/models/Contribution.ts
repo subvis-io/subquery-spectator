@@ -1,9 +1,7 @@
-// Copyright 2020-2021 OnFinality Limited authors & contributors
-// SPDX-License-Identifier: Apache-2.0
-
 // Auto-generated , DO NOT EDIT
 import {Entity} from "@subql/types";
 import assert from 'assert';
+
 
 export class Contribution implements Entity {
 
@@ -14,17 +12,17 @@ export class Contribution implements Entity {
 
     public id: string;
 
-    public AuctionId: string;
-
-    public AccountId: string;
+    public account: string;
 
     public parachainId: string;
 
     public fundId: string;
 
-    public value: bigint;
+    public amount: bigint;
 
     public blockNum: number;
+
+    public createdAt: Date;
 
 
     async save(): Promise<void>{
@@ -37,8 +35,8 @@ export class Contribution implements Entity {
         await store.remove('Contribution', id.toString());
     }
 
-    static async get(id:string): Promise<Contribution>{
-        assert(id !== null, "Cannot get Contribution entity without an ID");
+    static async get(id:string): Promise<Contribution | undefined>{
+        assert((id !== null && id !== undefined), "Cannot get Contribution entity without an ID");
         const record = await store.get('Contribution', id.toString());
         if (record){
             return Contribution.create(record);
@@ -46,6 +44,8 @@ export class Contribution implements Entity {
             return;
         }
     }
+
+
 
     static create(record){
         let entity = new Contribution(record.id);

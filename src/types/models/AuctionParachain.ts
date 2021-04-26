@@ -1,9 +1,7 @@
-// Copyright 2020-2021 OnFinality Limited authors & contributors
-// SPDX-License-Identifier: Apache-2.0
-
 // Auto-generated , DO NOT EDIT
 import {Entity} from "@subql/types";
 import assert from 'assert';
+
 
 export class AuctionParachain implements Entity {
 
@@ -18,6 +16,14 @@ export class AuctionParachain implements Entity {
 
     public parachainId: string;
 
+    public blockNum: number;
+
+    public createdAt: Date;
+
+    public firstSlot: number;
+
+    public lastSlot: number;
+
 
     async save(): Promise<void>{
         let id = this.id;
@@ -29,8 +35,8 @@ export class AuctionParachain implements Entity {
         await store.remove('AuctionParachain', id.toString());
     }
 
-    static async get(id:string): Promise<AuctionParachain>{
-        assert(id !== null, "Cannot get AuctionParachain entity without an ID");
+    static async get(id:string): Promise<AuctionParachain | undefined>{
+        assert((id !== null && id !== undefined), "Cannot get AuctionParachain entity without an ID");
         const record = await store.get('AuctionParachain', id.toString());
         if (record){
             return AuctionParachain.create(record);
@@ -38,6 +44,8 @@ export class AuctionParachain implements Entity {
             return;
         }
     }
+
+
 
     static create(record){
         let entity = new AuctionParachain(record.id);

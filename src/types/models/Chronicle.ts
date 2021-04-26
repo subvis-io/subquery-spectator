@@ -1,9 +1,7 @@
-// Copyright 2020-2021 OnFinality Limited authors & contributors
-// SPDX-License-Identifier: Apache-2.0
-
 // Auto-generated , DO NOT EDIT
 import {Entity} from "@subql/types";
 import assert from 'assert';
+
 
 export class Chronicle implements Entity {
 
@@ -16,11 +14,13 @@ export class Chronicle implements Entity {
 
     public curAuctionId?: string;
 
-    public curLease: number;
+    public curBlockNum?: number;
 
-    public curLeaseStart: number;
+    public curLease?: number;
 
-    public curLeaseEnd: number;
+    public curLeaseStart?: number;
+
+    public curLeaseEnd?: number;
 
 
     async save(): Promise<void>{
@@ -33,8 +33,8 @@ export class Chronicle implements Entity {
         await store.remove('Chronicle', id.toString());
     }
 
-    static async get(id:string): Promise<Chronicle>{
-        assert(id !== null, "Cannot get Chronicle entity without an ID");
+    static async get(id:string): Promise<Chronicle | undefined>{
+        assert((id !== null && id !== undefined), "Cannot get Chronicle entity without an ID");
         const record = await store.get('Chronicle', id.toString());
         if (record){
             return Chronicle.create(record);
@@ -42,6 +42,8 @@ export class Chronicle implements Entity {
             return;
         }
     }
+
+
 
     static create(record){
         let entity = new Chronicle(record.id);

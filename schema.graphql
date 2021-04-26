@@ -4,33 +4,34 @@ type Auction @entity {
   blockNum: Int!
   status: String!
   bids: [Bid]! @derivedFrom(field: "auction")
-  winningBidIds: [WinningBid]! @derivedFrom(field: "auction")
-  leaseStart: Int!
-  leaseEnd: Int!
-  started: Int!
+  # winningBids: [WinningBid]! @derivedFrom(field: "auction")
+  leaseStart: Int
+  slotsStart: Int!
+  leaseEnd: Int
+  slotsEnd: Int!
   closingStart: Int!
   closingEnd: Int!
   resultBlock: Int
+  ongoing: Boolean! @index(unique: true)
   parachains: [AuctionParachain]! @derivedFrom(field: "auction")
 }
 
-type Account @entity {
-  id: ID!
-  isFund: Boolean!
-}
+# type Account @entity {
+#   id: ID!
+#   isFund: Boolean!
+# }
 
 type Parachain @entity {
   id: ID!
   paraId: Int!
-  createdAt: Date!
-  creationBlock: Int!
+  createdAt: Date
+  creationBlock: Int
   deregistered: Boolean!
-  reserved: BigInt!
-  creator: Account! 
-  leased: [ParachainLeased]! @derivedFrom(field: "parachain")
-  onboarded: Boolean!
-  bids: [Bid]! @derivedFrom(field: "parachain")
-  funds: [Crowdloan]! @derivedFrom(field: "parachain")
+  deposit: BigInt!
+  manager: String!
+  leased: [ParachainLeased] @derivedFrom(field: "parachain")
+  bids: [Bid] @derivedFrom(field: "parachain")
+  funds: [Crowdloan] @derivedFrom(field: "parachain")
   # activeFund: Crowdloan
   # latestBid: Bid
   winningBlocks: [WinningBlock] @derivedFrom(field: "parachain") # should query individually for active auction
@@ -39,36 +40,44 @@ type Parachain @entity {
 
 type Crowdloan @entity {
   id: ID! # generated fund address
-  parachain: Parachain
+  parachain: Parachain!
   retiring: Boolean!
-  auction: Auction!
-  depositor: Account!
+  depositor: String!
+  verifier: String
   cap: BigInt!
   raised: BigInt!
   lockExpiredBlock: Int!
-  contributions: [Contribution] @derivedFrom(field: "fund") # should included only for specific Fund
+  blockNum: Int
+  # contributions: [Contribution] @derivedFrom(field: "fund") # should included only for specific Fund
 }
 
 type ParachainLeased @entity {
   id: ID!
   parachain: Parachain!
-  slotStart: Int!
-  slotEnd: Int!
+  firstSlot: Int!
+  lastSlot: Int!
+  blockNum: Int!
+  winningAmount: BigInt!
 }
 
 type AuctionParachain @entity {
   id: ID!
   auction: Auction!
   parachain: Parachain!
+  blockNum: Int!
+  createdAt: Date!
+  firstSlot: Int!
+  lastSlot: Int!
 }
 
-type WinningBid @entity {
-  id: ID!
-  bid: Bid!
-  auction: Auction!
-  slotStart: Int!
-  slotEnd: Int!
-}
+# type WinningBid @entity {
+#   id: ID!
+#   bid: Bid! 
+#   slotIdx: String! @index
+#   auction: Auction! 
+#   firstSlot: Int!
+#   lastSlot: Int!
+# }
 
 type WinningBlock @entity {
   id: ID!
@@ -76,38 +85,47 @@ type WinningBlock @entity {
   parachain: Parachain!
   blockNum: Int!
   bid: Bid!
-  slotStart: Int!
-  slotEnd: Int!
+  firstSlot: Int!
+  lastSlot: Int!
 }
 
 type Bid @entity {
   id: ID!
   auction: Auction!
+  winningAuction: Int @index # auctionId
   blockNum: Int!
   parachain: Parachain!
   isCrowdloan: Boolean!
-  value: BigInt!
+  amount: BigInt!
   fund: Crowdloan
-  slotStart: Int!
-  slotEnd: Int!
-  bidder: Account
+  firstSlot: Int!
+  lastSlot: Int!
+  bidder: String
+  createdAt: Date!
 }
 
 type Contribution @entity {
   id: ID!
-  Auction: Auction!
-  Account: Account!
+  account: String!
   parachain: Parachain!
   fund: Crowdloan!
-  value: BigInt!
+  amount: BigInt!
   blockNum: Int!
+  createdAt: Date!
 }
 
 type Chronicle @entity {
-  id: ID! # Static 'Chronicle'
+  id: ID! # Static 'ChronicleKey'
   curAuction: Auction
-  curLease: Int!
-  curLeaseStart: Int!
-  curLeaseEnd: Int!
-  parachains: [Parachain]! @derivedFrom(field: "chronicle")
+  curBlockNum: Int
+  curLease: Int
+  curLeaseStart: Int
+  curLeaseEnd: Int
+  parachains: [Parachain] @derivedFrom(field: "chronicle")
+}
+
+type CrowdloanSequence @entity {
+  id: ID!
+  curIndex: Int!
+  bumpAt: String
 }

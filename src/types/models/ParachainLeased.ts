@@ -1,9 +1,7 @@
-// Copyright 2020-2021 OnFinality Limited authors & contributors
-// SPDX-License-Identifier: Apache-2.0
-
 // Auto-generated , DO NOT EDIT
 import {Entity} from "@subql/types";
 import assert from 'assert';
+
 
 export class ParachainLeased implements Entity {
 
@@ -16,9 +14,13 @@ export class ParachainLeased implements Entity {
 
     public parachainId: string;
 
-    public slotStart: number;
+    public firstSlot: number;
 
-    public slotEnd: number;
+    public lastSlot: number;
+
+    public blockNum: number;
+
+    public winningAmount: bigint;
 
 
     async save(): Promise<void>{
@@ -31,8 +33,8 @@ export class ParachainLeased implements Entity {
         await store.remove('ParachainLeased', id.toString());
     }
 
-    static async get(id:string): Promise<ParachainLeased>{
-        assert(id !== null, "Cannot get ParachainLeased entity without an ID");
+    static async get(id:string): Promise<ParachainLeased | undefined>{
+        assert((id !== null && id !== undefined), "Cannot get ParachainLeased entity without an ID");
         const record = await store.get('ParachainLeased', id.toString());
         if (record){
             return ParachainLeased.create(record);
@@ -40,6 +42,8 @@ export class ParachainLeased implements Entity {
             return;
         }
     }
+
+
 
     static create(record){
         let entity = new ParachainLeased(record.id);

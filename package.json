@@ -8,7 +8,10 @@
     "build": "tsc -b",
     "prepack": "rm -rf dist && npm build",
     "test": "jest",
-    "start": "subql-node -f ./ --local -- --inspect",
+    "prestart": "npm run build",
+    "predebug": "npm run build",
+    "start": "subql-node -f ./ --local --debug --batch-size 100 -- --unhandled-rejections=strict",
+    "debug": "node --inspect --unhandled-rejections=strict node_modules/.bin/subql-node -f ./ --local --debug --batch-size 1",
     "codegen": "./node_modules/.bin/subql codegen"
   },
   "homepage": "https://github.com/subquery/subql-starter",
@@ -22,8 +25,12 @@
   "license": "Apache-2.0",
   "devDependencies": {
     "@polkadot/api": "^4",
-    "@subql/cli": "^0.8.0",
-    "@subql/types": "^0.6.1",
+    "@subql/cli": "^0.9.2",
+    "@subql/node": "^0.12.2",
+    "@subql/types": "^0.7.1",
     "typescript": "^4.1.3"
+  },
+  "resolutions": {
+    "@polkadot/api": "4.4.1"
   }
 }

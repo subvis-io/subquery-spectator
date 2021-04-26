@@ -1,9 +1,7 @@
-// Copyright 2020-2021 OnFinality Limited authors & contributors
-// SPDX-License-Identifier: Apache-2.0
-
 // Auto-generated , DO NOT EDIT
 import {Entity} from "@subql/types";
 import assert from 'assert';
+
 
 export class WinningBlock implements Entity {
 
@@ -22,9 +20,9 @@ export class WinningBlock implements Entity {
 
     public bidId: string;
 
-    public slotStart: number;
+    public firstSlot: number;
 
-    public slotEnd: number;
+    public lastSlot: number;
 
 
     async save(): Promise<void>{
@@ -37,8 +35,8 @@ export class WinningBlock implements Entity {
         await store.remove('WinningBlock', id.toString());
     }
 
-    static async get(id:string): Promise<WinningBlock>{
-        assert(id !== null, "Cannot get WinningBlock entity without an ID");
+    static async get(id:string): Promise<WinningBlock | undefined>{
+        assert((id !== null && id !== undefined), "Cannot get WinningBlock entity without an ID");
         const record = await store.get('WinningBlock', id.toString());
         if (record){
             return WinningBlock.create(record);
@@ -46,6 +44,8 @@ export class WinningBlock implements Entity {
             return;
         }
     }
+
+
 
     static create(record){
         let entity = new WinningBlock(record.id);

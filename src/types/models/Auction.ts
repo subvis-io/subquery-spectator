@@ -1,9 +1,7 @@
-// Copyright 2020-2021 OnFinality Limited authors & contributors
-// SPDX-License-Identifier: Apache-2.0
-
 // Auto-generated , DO NOT EDIT
 import {Entity} from "@subql/types";
 import assert from 'assert';
+
 
 export class Auction implements Entity {
 
@@ -18,17 +16,21 @@ export class Auction implements Entity {
 
     public status: string;
 
-    public leaseStart: number;
+    public leaseStart?: number;
 
-    public leaseEnd: number;
+    public slotsStart: number;
 
-    public started: number;
+    public leaseEnd?: number;
+
+    public slotsEnd: number;
 
     public closingStart: number;
 
     public closingEnd: number;
 
     public resultBlock?: number;
+
+    public ongoing: boolean;
 
 
     async save(): Promise<void>{
@@ -41,8 +43,8 @@ export class Auction implements Entity {
         await store.remove('Auction', id.toString());
     }
 
-    static async get(id:string): Promise<Auction>{
-        assert(id !== null, "Cannot get Auction entity without an ID");
+    static async get(id:string): Promise<Auction | undefined>{
+        assert((id !== null && id !== undefined), "Cannot get Auction entity without an ID");
         const record = await store.get('Auction', id.toString());
         if (record){
             return Auction.create(record);
@@ -50,6 +52,19 @@ export class Auction implements Entity {
             return;
         }
     }
+
+
+    static async getByOngoing(ongoing: boolean): Promise<Auction | undefined>{
+      
+      const record = await store.getOneByField('Auction', 'ongoing', ongoing);
+      if (record){
+          return Auction.create(record);
+      }else{
+          return;
+      }
+      
+    }
+
 
     static create(record){
         let entity = new Auction(record.id);
