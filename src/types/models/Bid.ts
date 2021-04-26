@@ -1,9 +1,7 @@
-// Copyright 2020-2021 OnFinality Limited authors & contributors
-// SPDX-License-Identifier: Apache-2.0
-
 // Auto-generated , DO NOT EDIT
 import {Entity} from "@subql/types";
 import assert from 'assert';
+
 
 export class Bid implements Entity {
 
@@ -16,21 +14,25 @@ export class Bid implements Entity {
 
     public auctionId: string;
 
+    public winningAuction?: number;
+
     public blockNum: number;
 
     public parachainId: string;
 
     public isCrowdloan: boolean;
 
-    public value: bigint;
+    public amount: bigint;
 
     public fundId?: string;
 
-    public slotStart: number;
+    public firstSlot: number;
 
-    public slotEnd: number;
+    public lastSlot: number;
 
-    public bidderId?: string;
+    public bidder?: string;
+
+    public createdAt: Date;
 
 
     async save(): Promise<void>{
@@ -43,8 +45,8 @@ export class Bid implements Entity {
         await store.remove('Bid', id.toString());
     }
 
-    static async get(id:string): Promise<Bid>{
-        assert(id !== null, "Cannot get Bid entity without an ID");
+    static async get(id:string): Promise<Bid | undefined>{
+        assert((id !== null && id !== undefined), "Cannot get Bid entity without an ID");
         const record = await store.get('Bid', id.toString());
         if (record){
             return Bid.create(record);
@@ -52,6 +54,15 @@ export class Bid implements Entity {
             return;
         }
     }
+
+
+    static async getByWinningAuction(winningAuction: number): Promise<Bid[] | undefined>{
+      
+      const records = await store.getByField('Bid', 'winningAuction', winningAuction);
+      return records.map(record => Bid.create(record));
+      
+    }
+
 
     static create(record){
         let entity = new Bid(record.id);

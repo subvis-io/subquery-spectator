@@ -4,12 +4,13 @@ repository: git@github.com:subvis-io/subquery-spectator.git
 schema: ./schema.graphql
 network:
   # endpoint: wss://polkadot.api.onfinality.io/public-ws
-  endpoint: wss://rococo-rpc.polkadot.io
+  # endpoint: wss://rococo-rpc.polkadot.io
+  endpoint: wss://node-6752765866060738560.jm.onfinality.io/ws?apikey=750b96dd-4b4a-4e74-bc74-cc77199935cf
   
 dataSources:
   - name: main
     kind: substrate/Runtime
-    startBlock: 190453
+    startBlock: 13563
     mapping:
       handlers:
         - handler: handleBlock
