@@ -5,7 +5,7 @@ schema: ./schema.graphql
 network:
   # endpoint: wss://polkadot.api.onfinality.io/public-ws
   # endpoint: wss://rococo-rpc.polkadot.io
-  endpoint: wss://node-6752765866060738560.jm.onfinality.io/ws?apikey=750b96dd-4b4a-4e74-bc74-cc77199935cf
+  endpoint: wss://node-6793473089227190272.jm.onfinality.io/ws?apikey=2c3f93ff-c795-47ce-8c63-9ede23ba6a66
   
 dataSources:
   - name: main
