@@ -12,7 +12,7 @@ type Auction @entity {
   closingStart: Int!
   closingEnd: Int!
   resultBlock: Int
-  ongoing: Boolean! @index(unique: true)
+  ongoing: Boolean! @index
   parachains: [AuctionParachain]! @derivedFrom(field: "auction")
 }
 
@@ -72,9 +72,9 @@ type AuctionParachain @entity {
 
 # type WinningBid @entity {
 #   id: ID!
-#   bid: Bid! 
+#   bid: Bid!
 #   slotIdx: String! @index
-#   auction: Auction! 
+#   auction: Auction!
 #   firstSlot: Int!
 #   lastSlot: Int!
 # }
