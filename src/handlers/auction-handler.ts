@@ -119,14 +119,16 @@ export const handleBidAccepted = async (substrateEvent: SubstrateEvent) => {
 };
 
 export const checkAuctionClosed = async (block: SubstrateBlock) => {
-  const auction = await Auction.getByOngoing(true);
-  if (!auction) {
+  const auctions = await Auction.getByOngoing(true);
+  if (!auctions) {
     return;
   }
   const blockNum = block.block.header.number.toNumber();
-  if (auction.closingEnd <= blockNum) {
-    auction.status = 'closed';
-    auction.ongoing = false;
-    auction.save();
-  }
+  auctions.map((auction)=>{
+    if (auction.closingEnd <= blockNum) {
+      auction.status = 'closed';
+      auction.ongoing = false;
+      auction.save();
+    }
+  })
 };
