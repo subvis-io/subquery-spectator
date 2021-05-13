@@ -48,6 +48,8 @@ type Crowdloan @entity {
   raised: BigInt!
   lockExpiredBlock: Int!
   blockNum: Int
+  firstSlot: Int!
+  lastSlot: Int!
   # contributions: [Contribution] @derivedFrom(field: "fund") # should included only for specific Fund
 }
 
