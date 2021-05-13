@@ -8,7 +8,12 @@ import {
   handleParachainRegistered,
   handleSlotsLeased
 } from '../handlers/parachain-handler';
-import { checkAuctionClosed, handleAuctionStarted, handleBidAccepted } from '../handlers/auction-handler';
+import {
+  checkAuctionClosed,
+  handleAuctionStarted,
+  handleBidAccepted,
+  updateBlockNum
+} from '../handlers/auction-handler';
 import { Chronicle } from '../types/models/Chronicle';
 import { ChronicleKey } from '../constants';
 
@@ -28,6 +33,7 @@ const eventsMapping = {
 
 export async function handleBlock(block: SubstrateBlock): Promise<void> {
   await checkAuctionClosed(block);
+  await updateBlockNum(block);
 }
 
 export async function handleEvent(event: SubstrateEvent): Promise<void> {
@@ -61,13 +67,6 @@ const init = async () => {
     await Chronicle.create({ id: ChronicleKey })
       .save()
       .catch((err) => logger.error(err));
-    // in case missing auction created event
-    // const auction = await api
-    //   .queryMulti([api.query.auctions.auctionInfo, api.query.auctions.auctionCounter])
-    //   .then(([auctionInfo, count]) => {
-    //     const auctionDetail = auctionInfo.toJSON() as [number, number, number];
-    //     return auctionDetail && auctionDetail.concat(count.toJSON() as number);
-    //   });
   }
 };
 

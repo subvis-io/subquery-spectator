@@ -14,6 +14,7 @@ const isFundAddress = (address: string) => {
 
 export const handleAuctionStarted = async (substrateEvent: SubstrateEvent) => {
   const endingPeriod = api.consts.auctions.endingPeriod.toJSON() as number;
+  const leasePeriod = api.consts.auctions.leasePeriodPerSlot.toJSON() as number;
   const { event, block } = substrateEvent;
   const { timestamp: createdAt, block: rawBlock } = block;
   const [auctionId, slotStart, auctionEnds] = event.data.toJSON() as [number, number, number];
@@ -23,6 +24,8 @@ export const handleAuctionStarted = async (substrateEvent: SubstrateEvent) => {
     status: 'Started',
     slotsStart: slotStart,
     slotsEnd: slotStart + 3,
+    leaseStart: slotStart * leasePeriod,
+    leaseEnd: (slotStart + 3) * leasePeriod,
     createdAt,
     closingStart: auctionEnds,
     ongoing: true,
@@ -124,11 +127,17 @@ export const checkAuctionClosed = async (block: SubstrateBlock) => {
     return;
   }
   const blockNum = block.block.header.number.toNumber();
-  auctions.map((auction)=>{
+  auctions.map((auction) => {
     if (auction.closingEnd <= blockNum) {
-      auction.status = 'closed';
+      auction.status = 'Closed';
       auction.ongoing = false;
       auction.save();
     }
-  })
+  });
+};
+
+export const updateBlockNum = async (block: SubstrateBlock) => {
+  const chronicle = await Chronicle.get(ChronicleKey);
+  chronicle.curBlockNum = block.block.header.number.toNumber();
+  await chronicle.save();
 };
