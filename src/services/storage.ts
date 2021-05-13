@@ -31,7 +31,6 @@ export const upsert = async <T extends Entity>(
     .then(() => updatedItem as T)
     .catch((err) => {
       logger.error(`Upsert entity failed, ${err.toString()}`);
-      process.exit(-1);
       return null;
     });
 };
@@ -46,6 +45,7 @@ export const ensureParachain = async (paraId: number): Promise<Entity> => {
 export const ensureFund = async (paraId: number, blockNum = 0): Promise<Crowdloan> => {
   const fund = await fetchCrowdloan(paraId);
   const parachainId = await getParachainId(paraId);
+  logger.info(`Retrieved parachainId: ${parachainId} for paraId: ${paraId}`);
   const fundId = await getLatestCrowdloanId(parachainId, blockNum);
   const { cap, end, trieIndex, raised, lastContribution, ...rest } = fund;
   logger.info(`Fund detail: ${JSON.stringify(fund, null, 2)}`);

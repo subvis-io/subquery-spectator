@@ -76,6 +76,7 @@ export const handleCrowdloanContributed = async (substrateEvent: SubstrateEvent)
   const blockNum = rawBlock.header.number.toNumber();
   const [contributor, fundIdx, amount] = event.data.toJSON() as [string, number, number | string];
   const amtValue = typeof amount === 'string' ? parseNumber(amount) : amount;
+  await Storage.ensureParachain(fundIdx);
 
   const { id: fundId, parachainId } = await Storage.ensureFund(fundIdx);
   const contribution = {
