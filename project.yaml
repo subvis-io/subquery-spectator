@@ -7,13 +7,13 @@ network:
   endpoint: wss://kusama-rpc.polkadot.io/
   # endpoint: wss://node-6793473089227190272.jm.onfinality.io/ws?apikey=2c3f93ff-c795-47ce-8c63-9ede23ba6a66
 
-definitions:
-  - mapping: &fnMapping
-    handlers: 
-      - handler: handleBlock
-        kind: substrate/BlockHandler
-      - handler: handleEvent
-        kind: substrate/EventHandler
+# definitions:
+#   - mapping: &fnMapping
+#     handlers: 
+#       - handler: handleBlock
+#         kind: substrate/BlockHandler
+#       - handler: handleEvent
+#         kind: substrate/EventHandler
 
 
 dataSources:
@@ -22,13 +22,24 @@ dataSources:
     filter: 
       specName: rococo
     startBlock: 1
-    mapping: *fnMapping
+    mapping: 
+      handlers: 
+      - handler: handleBlock
+        kind: substrate/BlockHandler
+      - handler: handleEvent
+        kind: substrate/EventHandler
+        
   - name: KusamaRuntime
     kind: substrate/Runtime
     filter: 
       specName: kusama
     startBlock: 7459275
-    mapping: *fnMapping
+    mapping:
+      handlers: 
+      - handler: handleBlock
+        kind: substrate/BlockHandler
+      - handler: handleEvent
+        kind: substrate/EventHandler
         
         #   filter:
         #     module: balances
