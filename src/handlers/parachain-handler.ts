@@ -29,7 +29,7 @@ export const handleSlotsLeased = async (substrateEvent: SubstrateEvent) => {
   const { event, block } = substrateEvent;
   const { block: rawBlock } = block;
   const { number: blockNum } = rawBlock.header;
-  const [paraId, from, firstSlot, lastSlot, extra, total] = event.data.toJSON() as [
+  const [paraId, from, firstSlot, slotCount, extra, total] = event.data.toJSON() as [
     number,
     string,
     number,
@@ -37,6 +37,8 @@ export const handleSlotsLeased = async (substrateEvent: SubstrateEvent) => {
     string,
     string
   ];
+
+  const lastSlot = firstSlot + slotCount;
 
   if (IgnoreParachainIds.includes(paraId)) {
     logger.info(`Ignore testing parachain ${paraId}`);
