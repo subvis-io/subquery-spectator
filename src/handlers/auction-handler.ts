@@ -14,7 +14,7 @@ const isFundAddress = (address: string) => {
 
 export const handleAuctionStarted = async (substrateEvent: SubstrateEvent) => {
   const endingPeriod = api.consts.auctions.endingPeriod.toJSON() as number;
-  const leasePeriod = api.consts.auctions.leasePeriodPerSlot.toJSON() as number;
+  const leasePeriod = api.consts.auctions.leasePeriod.toJSON() as number;
   const { event, block } = substrateEvent;
   const { timestamp: createdAt, block: rawBlock } = block;
   const [auctionId, slotStart, auctionEnds] = event.data.toJSON() as [number, number, number];
