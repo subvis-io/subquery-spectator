@@ -20,7 +20,7 @@ export class ParachainWinningLeases implements Entity {
 
     public activeForAuction?: string;
 
-    public numBlockWon: number;
+    public numBlockWon?: number;
 
 
     async save(): Promise<void>{
