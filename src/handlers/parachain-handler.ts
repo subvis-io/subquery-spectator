@@ -1,7 +1,7 @@
 import { SubstrateEvent } from '@subql/types';
 import * as Storage from '../services/storage';
 
-import { ParachainLeased } from '../types/models/ParachainLeased';
+import { ParachainLeases } from '../types/models/ParachainLeases';
 import { getParachainId, parseNumber } from '../utils';
 
 const IgnoreParachainIds = [100, 110, 120, 1];
@@ -49,7 +49,7 @@ export const handleSlotsLeased = async (substrateEvent: SubstrateEvent) => {
   const totalUsed = parseNumber(total);
   logger.info(`Slot leased, with ${JSON.stringify({ paraId, from, firstSlot, lastSlot, extra, total }, null, 2)}`);
 
-  const lease = ParachainLeased.create({
+  const lease = ParachainLeases.create({
     id: `${paraId}-${firstSlot}-${lastSlot}`,
     parachainId,
     firstSlot,

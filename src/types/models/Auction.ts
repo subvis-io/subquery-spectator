@@ -54,6 +54,13 @@ export class Auction implements Entity {
     }
 
 
+    static async getByStatus(status: string): Promise<Auction[] | undefined>{
+      
+      const records = await store.getByField('Auction', 'status', status);
+      return records.map(record => Auction.create(record));
+      
+    }
+
     static async getByOngoing(ongoing: boolean): Promise<Auction[] | undefined>{
       
       const records = await store.getByField('Auction', 'ongoing', ongoing);

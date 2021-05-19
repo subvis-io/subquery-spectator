@@ -8,9 +8,11 @@ export {Parachain} from "./Parachain"
 
 export {Crowdloan} from "./Crowdloan"
 
-export {ParachainLeased} from "./ParachainLeased"
+export {ParachainLeases} from "./ParachainLeases"
 
 export {AuctionParachain} from "./AuctionParachain"
+
+export {ParachainWinningLeases} from "./ParachainWinningLeases"
 
 export {WinningBlock} from "./WinningBlock"
 

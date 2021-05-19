@@ -28,6 +28,10 @@ export class Crowdloan implements Entity {
 
     public blockNum?: number;
 
+    public firstSlot: number;
+
+    public lastSlot: number;
+
 
     async save(): Promise<void>{
         let id = this.id;

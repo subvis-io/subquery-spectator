@@ -6,6 +6,7 @@ import { Chronicle } from '../types/models/Chronicle';
 import { parseNumber } from '../utils';
 import * as Storage from '../services/storage';
 import { Bid } from '../types/models/Bid';
+import { ParachainWinningLeases } from '../types/models/ParachainWinningLeases';
 
 const isFundAddress = (address: string) => {
   const hexStr = api.createType('Address', address).toHex();
@@ -32,9 +33,11 @@ export const handleAuctionStarted = async (substrateEvent: SubstrateEvent) => {
     ongoing: true,
     closingEnd: auctionEnds + endingPeriod
   });
-  // const chronicle = await Chronicle.get(ChronicleKey);
-  // chronicle.curAuctionId = auctionId.toString();
-  // chronicle.save();
+
+  const chronicle = await Chronicle.get(ChronicleKey);
+  chronicle.curAuctionId = auctionId.toString();
+  await chronicle.save();
+
   logger.info(`Auction ${auctionId} saved`);
 };
 
@@ -61,6 +64,23 @@ const markLosingBids = async (auctionId: number, slotStart: number, slotEnd: num
   }
 };
 
+const markParachainWinningLeases = async (auctionId: number, paraId: number, leaseStart: number, leaseEnd: number) => {
+  const leaseRange = `${auctionId}-${leaseStart}-${leaseEnd}`;
+  const winningLeases = (await ParachainWinningLeases.getByLeaseRange(leaseRange)) || [];
+  const losingLeases = winningLeases.filter((lease) => lease.paraId !== paraId);
+  for (const lease of losingLeases) {
+    lease.activeForAuction = null;
+    await lease.save();
+    logger.info(`Mark losing parachain leases ${lease.paraId} for ${lease.leaseRange}`);
+  }
+  Storage.upsert('ParachainWinningLeases', `${paraId}-${leaseRange}-${auctionId}`, {
+    paraId,
+    leaseRange,
+    auctionId,
+    activeForAuction: auctionId
+  });
+};
+
 /**
  *
  * @param substrateEvent SubstrateEvent
@@ -80,7 +100,6 @@ export const handleBidAccepted = async (substrateEvent: SubstrateEvent) => {
   ];
   const auctionId = (await api.query.auctions.auctionCounter()).toJSON() as number;
   const isFund = isFundAddress(from);
-
   const parachain = await Storage.ensureParachain(paraId);
   const { id: parachainId } = parachain;
 
@@ -103,6 +122,8 @@ export const handleBidAccepted = async (substrateEvent: SubstrateEvent) => {
   logger.info(`Bid detail: ${JSON.stringify(bid, null, 2)}`);
   const { id: bidId } = await Storage.save('Bid', bid);
   logger.info(`Bid saved: ${bidId}`);
+
+  markParachainWinningLeases(auctionId, paraId, firstSlot, lastSlot);
 
   markLosingBids(auctionId, firstSlot, lastSlot, bidId);
 
@@ -141,4 +162,17 @@ export const updateBlockNum = async (block: SubstrateBlock) => {
   const chronicle = await Chronicle.get(ChronicleKey);
   chronicle.curBlockNum = block.block.header.number.toNumber();
   await chronicle.save();
+};
+
+export const updateWinningBlocks = async (block: SubstrateBlock) => {
+  const { curAuctionId, curBlockNum } = (await Chronicle.get(ChronicleKey)) || {};
+  const { closingStart, closingEnd } = (await Auction.get(curAuctionId || '')) || {};
+
+  if (closingStart > curBlockNum && curBlockNum < closingEnd) {
+    const winningLeases = await ParachainWinningLeases.getByActiveForAuction(curAuctionId);
+    for (const lease of winningLeases) {
+      lease.numBlockWon = (lease.numBlockWon || 0) + 1;
+      await lease.save();
+    }
+  }
 };

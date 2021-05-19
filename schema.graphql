@@ -2,7 +2,7 @@
 type Auction @entity {
   id: ID! #id is a required field
   blockNum: Int!
-  status: String!
+  status: String! @index
   bids: [Bid]! @derivedFrom(field: "auction")
   # winningBids: [WinningBid]! @derivedFrom(field: "auction")
   leaseStart: Int
@@ -29,7 +29,7 @@ type Parachain @entity {
   deregistered: Boolean!
   deposit: BigInt!
   manager: String!
-  leased: [ParachainLeased] @derivedFrom(field: "parachain")
+  leased: [ParachainLeases] @derivedFrom(field: "parachain")
   bids: [Bid] @derivedFrom(field: "parachain")
   funds: [Crowdloan] @derivedFrom(field: "parachain")
   # activeFund: Crowdloan
@@ -53,7 +53,7 @@ type Crowdloan @entity {
   # contributions: [Contribution] @derivedFrom(field: "fund") # should included only for specific Fund
 }
 
-type ParachainLeased @entity {
+type ParachainLeases @entity {
   id: ID!
   parachain: Parachain!
   firstSlot: Int!
@@ -72,14 +72,14 @@ type AuctionParachain @entity {
   lastSlot: Int!
 }
 
-# type WinningBid @entity {
-#   id: ID!
-#   bid: Bid!
-#   slotIdx: String! @index
-#   auction: Auction!
-#   firstSlot: Int!
-#   lastSlot: Int!
-# }
+type ParachainWinningLeases @entity {
+  id: ID! # paraId-leaseRange-auction
+  paraId: Int!
+  leaseRange: String! @index #auctionId-start-end
+  auctionId: String! @index
+  activeForAuction: String @index #auctionId
+  numBlockWon: Int
+}
 
 type WinningBlock @entity {
   id: ID!

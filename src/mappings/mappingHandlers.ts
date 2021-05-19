@@ -12,7 +12,8 @@ import {
   checkAuctionClosed,
   handleAuctionStarted,
   handleBidAccepted,
-  updateBlockNum
+  updateBlockNum,
+  updateWinningBlocks
 } from '../handlers/auction-handler';
 import { Chronicle } from '../types/models/Chronicle';
 import { ChronicleKey } from '../constants';
@@ -34,6 +35,7 @@ const eventsMapping = {
 export async function handleBlock(block: SubstrateBlock): Promise<void> {
   await checkAuctionClosed(block);
   await updateBlockNum(block);
+  await updateWinningBlocks(block);
 }
 
 export async function handleEvent(event: SubstrateEvent): Promise<void> {

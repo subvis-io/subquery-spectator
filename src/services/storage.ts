@@ -22,10 +22,18 @@ export const get = async <T extends Entity>(colName: string, id: string): Promis
 export const upsert = async <T extends Entity>(
   colName: string,
   id: string,
-  updater: Record<string, any>
+  updater: Record<string, any>,
+  updateFn?: (entry?: Entity) => T
 ): Promise<T> => {
   const entry = await get(colName, id);
-  const updatedItem = entry ? { ...entry, ...updater, id } : { ...updater, id };
+  const updatedItem = entry
+    ? updateFn
+      ? updateFn(entry)
+      : { ...entry, ...updater, id }
+    : updateFn
+    ? updateFn()
+    : { ...updater, id };
+
   return store
     .set(colName, id, updatedItem)
     .then(() => updatedItem as T)
