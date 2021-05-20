@@ -34,7 +34,6 @@ type Parachain @entity {
   funds: [Crowdloan] @derivedFrom(field: "parachain")
   # activeFund: Crowdloan
   # latestBid: Bid
-  winningBlocks: [WinningBlock] @derivedFrom(field: "parachain") # should query individually for active auction
   chronicle: Chronicle
 }
 
@@ -79,16 +78,6 @@ type ParachainWinningLeases @entity {
   auctionId: String! @index
   activeForAuction: String @index #auctionId
   numBlockWon: Int
-}
-
-type WinningBlock @entity {
-  id: ID!
-  auction: Auction!
-  parachain: Parachain!
-  blockNum: Int!
-  bid: Bid!
-  firstSlot: Int!
-  lastSlot: Int!
 }
 
 type Bid @entity {

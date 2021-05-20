@@ -14,8 +14,6 @@ export {AuctionParachain} from "./AuctionParachain"
 
 export {ParachainWinningLeases} from "./ParachainWinningLeases"
 
-export {WinningBlock} from "./WinningBlock"
-
 export {Bid} from "./Bid"
 
 export {Contribution} from "./Contribution"

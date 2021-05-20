@@ -22,7 +22,7 @@ dataSources:
     kind: substrate/Runtime
     filter: 
       specName: rococo
-    startBlock: 1
+    startBlock: 357245
     mapping: 
       handlers: 
       - handler: handleBlock
