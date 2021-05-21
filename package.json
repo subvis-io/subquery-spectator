@@ -25,12 +25,9 @@
   "author": "Kerwin Weng",
   "license": "Apache-2.0",
   "devDependencies": {
-    "@polkadot/api": "^4.10.1",
+    "@polkadot/api": "^4.10.2-4",
     "@subql/cli": "^0.9.3",
     "@subql/types": "^0.7.1",
     "typescript": "^4.1.3"
-  },
-  "dependencies": {
-    "@subql/node": "^0.13.0"
   }
 }
