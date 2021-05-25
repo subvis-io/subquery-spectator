@@ -40,7 +40,7 @@ type Parachain @entity {
 type Crowdloan @entity {
   id: ID! # generated fund address
   parachain: Parachain!
-  retiring: Boolean!
+  retiring: Boolean! @index
   depositor: String!
   verifier: String
   cap: BigInt!
@@ -49,6 +49,7 @@ type Crowdloan @entity {
   blockNum: Int
   firstSlot: Int!
   lastSlot: Int!
+  wonAuctionId: String @index 
   # contributions: [Contribution] @derivedFrom(field: "fund") # should included only for specific Fund
 }
 

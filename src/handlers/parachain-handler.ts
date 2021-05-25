@@ -1,5 +1,8 @@
-import { SubstrateEvent } from '@subql/types';
+import { SubstrateBlock, SubstrateEvent } from '@subql/types';
+import { ChronicleKey } from '../constants';
 import * as Storage from '../services/storage';
+import { Crowdloan } from '../types/models/Crowdloan';
+import { Chronicle } from '../types/models/Chronicle';
 
 import { ParachainLeases } from '../types/models/ParachainLeases';
 import { getParachainId, parseNumber } from '../utils';
@@ -93,4 +96,32 @@ export const handleCrowdloanContributed = async (substrateEvent: SubstrateEvent)
 
   logger.info(`contribution for ${JSON.stringify(contribution, null, 2)}`);
   await Storage.save('Contribution', contribution);
+};
+
+export const updateCrowdloanStatus = async (block: SubstrateBlock) => {
+  const blockNum = block.block.header.number.toNumber();
+  const funds = (await Crowdloan.getByRetiring(false)) || [];
+  await Promise.all(
+    funds
+      .filter((fund) => fund.lockExpiredBlock <= blockNum)
+      .map((fund) => {
+        fund.retiring = true;
+        return fund.save();
+      })
+  );
+};
+
+export const handleCrowdloanWon = async (substrateEvent: SubstrateEvent) => {
+  const { event, block } = substrateEvent;
+  const { block: rawBlock } = block;
+  const { curAuctionId } = (await Chronicle.get(ChronicleKey)) || {};
+  const blockNum = rawBlock.header.number.toNumber();
+  const [fundIdx] = event.data.toJSON() as [number, number];
+  const { lastSlot, ...rest } = await Storage.ensureFund(fundIdx, blockNum);
+  const leasePeriod = api.consts.slots.leasePeriod.toJSON() as number;
+  await Storage.save('Crowdloan', {
+    ...rest,
+    lockExpiredBlock: lastSlot * leasePeriod,
+    wonAuctionId: curAuctionId
+  });
 };

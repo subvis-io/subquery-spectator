@@ -1,10 +1,9 @@
 import { Entity } from '@subql/types';
 import assert from 'assert';
-import { CrowdloanReturn } from '../types';
+import { Chronicle } from '../types/models/Chronicle';
+import { Crowdloan } from '../types/models/Crowdloan';
 import { CrowdloanSequence } from '../types/models/CrowdloanSequence';
 import { fetchCrowdloan, fetchParachain, getParachainId, parseNumber } from '../utils';
-
-type Crowdloan = Omit<CrowdloanReturn, 'lastContribution' | 'cap'> & { cap: number; id: string; parachainId: string };
 
 export const save = async <T extends Entity>(colName: string, entity: T): Promise<T> => {
   const { id } = entity;

@@ -156,19 +156,20 @@ export const checkAuctionClosed = async (block: SubstrateBlock) => {
       auction.save();
     }
   });
+  Storage.upsert('Chronicle', ChronicleKey, { curAuctionId: null });
 };
 
 export const updateBlockNum = async (block: SubstrateBlock) => {
-  const chronicle = await Chronicle.get(ChronicleKey);
-  chronicle.curBlockNum = block.block.header.number.toNumber();
-  await chronicle.save();
+  await Storage.upsert<Chronicle>('Chronicle', ChronicleKey, {
+    curBlockNum: block.block.header.number.toNumber()
+  });
 };
 
 export const updateWinningBlocks = async (block: SubstrateBlock) => {
   const { curAuctionId, curBlockNum } = (await Chronicle.get(ChronicleKey)) || {};
   const { closingStart, closingEnd } = (await Auction.get(curAuctionId || '')) || {};
 
-  if (closingStart > curBlockNum && curBlockNum < closingEnd) {
+  if (curAuctionId && closingStart > curBlockNum && curBlockNum < closingEnd) {
     const winningLeases = await ParachainWinningLeases.getByActiveForAuction(curAuctionId);
     for (const lease of winningLeases) {
       lease.numBlockWon = (lease.numBlockWon || 0) + 1;

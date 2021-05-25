@@ -32,6 +32,8 @@ export class Crowdloan implements Entity {
 
     public lastSlot: number;
 
+    public wonAuctionId?: string;
+
 
     async save(): Promise<void>{
         let id = this.id;
@@ -53,6 +55,20 @@ export class Crowdloan implements Entity {
         }
     }
 
+
+    static async getByRetiring(retiring: boolean): Promise<Crowdloan[] | undefined>{
+      
+      const records = await store.getByField('Crowdloan', 'retiring', retiring);
+      return records.map(record => Crowdloan.create(record));
+      
+    }
+
+    static async getByWonAuctionId(wonAuctionId: string): Promise<Crowdloan[] | undefined>{
+      
+      const records = await store.getByField('Crowdloan', 'wonAuctionId', wonAuctionId);
+      return records.map(record => Crowdloan.create(record));
+      
+    }
 
 
     static create(record){

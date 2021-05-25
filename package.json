@@ -1,5 +1,5 @@
 {
-  "name": "subql-spectator",
+  "name": "subql-spectator-rococo",
   "version": "0.1.0",
   "description": "Substrate slots auction data collector",
   "main": "dist/index.js",
@@ -10,7 +10,7 @@
     "test": "jest",
     "prestart": "npm run build",
     "predebug": "npm run build",
-    "start": "subql-node -f ./ --local --batch-size 1 -- --unhandled-rejections=strict",
+    "start": "subql-node -f ./ --batch-size 200 -- --unhandled-rejections=strict",
     "debug": "node --inspect --unhandled-rejections=strict node_modules/.bin/subql-node -f ./ --local --debug --batch-size 1",
     "query": "subql-query -n subql-spectator --playground",
     "codegen": "./node_modules/.bin/subql codegen"
@@ -25,9 +25,12 @@
   "author": "Kerwin Weng",
   "license": "Apache-2.0",
   "devDependencies": {
-    "@polkadot/api": "^4.10.2-4",
+    "@polkadot/api": "^4.11.1",
     "@subql/cli": "^0.9.3",
     "@subql/types": "^0.7.1",
     "typescript": "^4.1.3"
+  },
+  "resolutions": {
+    "@polkadot/api": "^4.11.1"
   }
 }

@@ -5,7 +5,8 @@ schema: ./schema.graphql
 network:
   # endpoint: wss://polkadot.api.onfinality.io/public-ws
   # endpoint: wss://kusama-rpc.polkadot.io/
-  endpoint: wss://rococo-rpc.polkadot.io/
+  # endpoint: wss://rococo-rpc.polkadot.io/
+  endpoint: wss://rococo.aresprotocol.com
   # endpoint: wss://node-6793473089227190272.jm.onfinality.io/ws?apikey=2c3f93ff-c795-47ce-8c63-9ede23ba6a66
 
 # definitions:
@@ -22,7 +23,7 @@ dataSources:
     kind: substrate/Runtime
     filter: 
       specName: rococo
-    startBlock: 357245
+    startBlock: 1
     mapping: 
       handlers: 
       - handler: handleBlock

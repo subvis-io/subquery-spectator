@@ -5,8 +5,10 @@ import { SubstrateBlock } from '@subql/types';
 import {
   handleCrowdloanContributed,
   handleCrowdloanCreated,
+  handleCrowdloanWon,
   handleParachainRegistered,
-  handleSlotsLeased
+  handleSlotsLeased,
+  updateCrowdloanStatus
 } from '../handlers/parachain-handler';
 import {
   checkAuctionClosed,
@@ -29,13 +31,15 @@ const eventsMapping = {
   'auctions/Reserved': noop,
   'auctions/Unreserved': noop,
   'crowdloan/HandleBidResult': noop,
-  'slots/Leased': handleSlotsLeased
+  'slots/Leased': handleSlotsLeased,
+  'crowdloan/onboarded': handleCrowdloanWon
 };
 
 export async function handleBlock(block: SubstrateBlock): Promise<void> {
-  await checkAuctionClosed(block);
   await updateBlockNum(block);
+  await checkAuctionClosed(block);
   await updateWinningBlocks(block);
+  await updateCrowdloanStatus(block);
 }
 
 export async function handleEvent(event: SubstrateEvent): Promise<void> {
