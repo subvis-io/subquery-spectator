@@ -60,7 +60,7 @@ export async function handleEvent(event: SubstrateEvent): Promise<void> {
         event.toJSON(),
         null,
         2
-      )}`
+      )} \n ${JSON.stringify(event.toHuman(), null, 2)}`
     );
     await handler(event);
   }

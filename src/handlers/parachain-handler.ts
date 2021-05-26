@@ -9,13 +9,19 @@ import { getParachainId, parseNumber } from '../utils';
 
 const IgnoreParachainIds = [100, 110, 120, 1];
 
+interface ParaInfo {
+  manager: string;
+  deposit: number;
+  locked: boolean;
+}
+
 export const handleParachainRegistered = async (substrateEvent: SubstrateEvent) => {
   const { event, extrinsic, block } = substrateEvent;
   const { timestamp: createdAt, block: rawBlock } = block;
   const { number: blockNum } = rawBlock.header;
-  const reservedEvent = extrinsic.events.find((event) => event.event.method.match(/reserved/i));
-  const [, deposit] = (reservedEvent?.event.data.toJSON() as [string, number]) || [, 0];
+
   const [paraId, manager] = event.data.toJSON() as [number, string];
+  const { deposit } = ((await api.query.registrar.paras(paraId)).toJSON() as unknown as ParaInfo) || { deposit: 0 };
   const parachain = await Storage.save('Parachain', {
     id: `${paraId}-${manager}`,
     paraId,
