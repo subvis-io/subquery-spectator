@@ -54,9 +54,11 @@ export const handleSlotsLeased = async (substrateEvent: SubstrateEvent) => {
     return;
   }
 
-  const parachainId = await getParachainId(paraId);
+  const { id: parachainId } = await Storage.ensureParachain(paraId);
   const totalUsed = parseNumber(total);
-  logger.info(`Slot leased, with ${JSON.stringify({ paraId, from, firstSlot, lastSlot, extra, total }, null, 2)}`);
+  logger.info(
+    `Slot leased, with ${JSON.stringify({ paraId, from, firstSlot, lastSlot, extra, total, parachainId }, null, 2)}`
+  );
 
   const lease = ParachainLeases.create({
     id: `${paraId}-${firstSlot}-${lastSlot}`,
@@ -67,7 +69,9 @@ export const handleSlotsLeased = async (substrateEvent: SubstrateEvent) => {
     winningAmount: totalUsed
   });
   logger.info(`Lease: ${JSON.stringify(lease, null, 2)}`);
-  lease.save();
+  await lease.save().catch((err) => {
+    logger.error(`Saving ParachainLeases failed ${err}`);
+  });
 };
 
 export const handleCrowdloanCreated = async (substrateEvent: SubstrateEvent) => {

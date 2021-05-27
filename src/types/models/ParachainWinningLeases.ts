@@ -16,6 +16,12 @@ export class ParachainWinningLeases implements Entity {
 
     public leaseRange: string;
 
+    public firstLease: number;
+
+    public lastLease: number;
+
+    public latestBidAmount: bigint;
+
     public auctionId: string;
 
     public activeForAuction?: string;

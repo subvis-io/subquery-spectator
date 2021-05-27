@@ -10,8 +10,8 @@
     "test": "jest",
     "prestart": "npm run build",
     "predebug": "npm run build",
-    "start": "subql-node -f ./ --batch-size 1 --debug -- --unhandled-rejections=strict",
-    "debug": "node --inspect --unhandled-rejections=strict node_modules/.bin/subql-node -f ./ --local --debug --batch-size 1",
+    "start": "subql-node -f ./ --batch-size 200 -- --unhandled-rejections=strict --trace-warnings",
+    "debug": "node --inspect --unhandled-rejections=strict subql-node -f ./ --local --debug --batch-size 1",
     "query": "subql-query -n subql-spectator --playground",
     "codegen": "./node_modules/.bin/subql codegen"
   },
@@ -25,12 +25,12 @@
   "author": "Kerwin Weng",
   "license": "Apache-2.0",
   "devDependencies": {
-    "@polkadot/api": "^4.11.1",
+    "@polkadot/api": "^4.11.2",
     "@subql/cli": "^0.9.3",
     "@subql/types": "^0.7.1",
     "typescript": "^4.1.3"
   },
   "resolutions": {
-    "@polkadot/api": "^4.11.1"
+    "@polkadot/api": "^4.11.2"
   }
 }

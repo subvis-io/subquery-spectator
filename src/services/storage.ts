@@ -1,6 +1,6 @@
 import { Entity } from '@subql/types';
 import assert from 'assert';
-import { Chronicle } from '../types/models/Chronicle';
+import { Parachain } from '../types/models/Parachain';
 import { Crowdloan } from '../types/models/Crowdloan';
 import { CrowdloanSequence } from '../types/models/CrowdloanSequence';
 import { fetchCrowdloan, fetchParachain, getParachainId, parseNumber } from '../utils';
@@ -42,7 +42,7 @@ export const upsert = async <T extends Entity>(
     });
 };
 
-export const ensureParachain = async (paraId: number): Promise<Entity> => {
+export const ensureParachain = async (paraId: number): Promise<Parachain> => {
   logger.info(`Fetch parachain by ${paraId}`);
   const { manager, deposit } = await fetchParachain(paraId);
   const parachainId = `${paraId}-${manager}`;

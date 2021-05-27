@@ -64,7 +64,13 @@ const markLosingBids = async (auctionId: number, slotStart: number, slotEnd: num
   }
 };
 
-const markParachainWinningLeases = async (auctionId: number, paraId: number, leaseStart: number, leaseEnd: number) => {
+const markParachainWinningLeases = async (
+  auctionId: number,
+  paraId: number,
+  leaseStart: number,
+  leaseEnd: number,
+  bidAmount: number
+) => {
   const leaseRange = `${auctionId}-${leaseStart}-${leaseEnd}`;
   const winningLeases = (await ParachainWinningLeases.getByLeaseRange(leaseRange)) || [];
   const losingLeases = winningLeases.filter((lease) => lease.paraId !== paraId);
@@ -73,10 +79,13 @@ const markParachainWinningLeases = async (auctionId: number, paraId: number, lea
     await lease.save();
     logger.info(`Mark losing parachain leases ${lease.paraId} for ${lease.leaseRange}`);
   }
-  Storage.upsert('ParachainWinningLeases', `${paraId}-${leaseRange}-${auctionId}`, {
+  await Storage.upsert('ParachainWinningLeases', `${paraId}-${leaseRange}`, {
     paraId,
     leaseRange,
+    firstLease: leaseStart,
+    lastLease: leaseEnd,
     auctionId,
+    latestBidAmount: bidAmount,
     activeForAuction: auctionId
   });
 };
@@ -104,6 +113,7 @@ export const handleBidAccepted = async (substrateEvent: SubstrateEvent) => {
   const { id: parachainId } = parachain;
 
   const fundId = await Storage.getLatestCrowdloanId(parachainId);
+  const bidAmount = parseNumber(amount);
   const bid = {
     id: `${blockNum}-${from}-${paraId}-${firstSlot}-${lastSlot}`,
     auctionId: `${auctionId}`,
@@ -123,7 +133,7 @@ export const handleBidAccepted = async (substrateEvent: SubstrateEvent) => {
   const { id: bidId } = await Storage.save('Bid', bid);
   logger.info(`Bid saved: ${bidId}`);
 
-  markParachainWinningLeases(auctionId, paraId, firstSlot, lastSlot);
+  markParachainWinningLeases(auctionId, paraId, firstSlot, lastSlot, bidAmount);
 
   markLosingBids(auctionId, firstSlot, lastSlot, bidId);
 
@@ -149,14 +159,17 @@ export const checkAuctionClosed = async (block: SubstrateBlock) => {
     return;
   }
   const blockNum = block.block.header.number.toNumber();
-  auctions.map((auction) => {
+  const closedAuctions = auctions.filter(({ closingEnd }) => closingEnd <= blockNum);
+  for (const auction of closedAuctions) {
     if (auction.closingEnd <= blockNum) {
       auction.status = 'Closed';
       auction.ongoing = false;
       auction.save();
     }
-  });
-  Storage.upsert('Chronicle', ChronicleKey, { curAuctionId: null });
+  }
+  if (closedAuctions.length) {
+    Storage.upsert('Chronicle', ChronicleKey, { curAuctionId: null });
+  }
 };
 
 export const updateBlockNum = async (block: SubstrateBlock) => {
@@ -169,7 +182,8 @@ export const updateWinningBlocks = async (block: SubstrateBlock) => {
   const { curAuctionId, curBlockNum } = (await Chronicle.get(ChronicleKey)) || {};
   const { closingStart, closingEnd } = (await Auction.get(curAuctionId || '')) || {};
 
-  if (curAuctionId && closingStart > curBlockNum && curBlockNum < closingEnd) {
+  if (curAuctionId && closingStart >= curBlockNum && curBlockNum <= closingEnd) {
+    logger.info(`About to update winning leases ${curBlockNum}, closing: ${closingStart} - ${closingEnd}`);
     const winningLeases = await ParachainWinningLeases.getByActiveForAuction(curAuctionId);
     for (const lease of winningLeases) {
       lease.numBlockWon = (lease.numBlockWon || 0) + 1;
