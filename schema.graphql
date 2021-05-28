@@ -13,8 +13,7 @@ type Auction @entity {
   closingEnd: Int!
   resultBlock: Int
   ongoing: Boolean! @index
-  parachains: [AuctionParachain]! @derivedFrom(field: "auction")
-  winningLeases: [ParachainWinningLeases] @derivedFrom(field: "auction")
+  parachainLeases: [ParachainLeases] @derivedFrom(field: "auction")
 }
 
 # type Account @entity {
@@ -30,7 +29,7 @@ type Parachain @entity {
   deregistered: Boolean!
   deposit: BigInt!
   manager: String!
-  leased: [ParachainLeases] @derivedFrom(field: "parachain")
+  leases: [ParachainLeases] @derivedFrom(field: "parachain")
   bids: [Bid] @derivedFrom(field: "parachain")
   funds: [Crowdloan] @derivedFrom(field: "parachain")
   # activeFund: Crowdloan
@@ -54,15 +53,6 @@ type Crowdloan @entity {
   # contributions: [Contribution] @derivedFrom(field: "fund") # should included only for specific Fund
 }
 
-type ParachainLeases @entity {
-  id: ID!
-  parachain: Parachain!
-  firstSlot: Int!
-  lastSlot: Int!
-  blockNum: Int!
-  winningAmount: BigInt!
-}
-
 type AuctionParachain @entity {
   id: ID!
   auction: Auction!
@@ -73,16 +63,22 @@ type AuctionParachain @entity {
   lastSlot: Int!
 }
 
-type ParachainWinningLeases @entity {
+type ParachainLeases @entity {
   id: ID! # paraId-leaseRange-auction
   paraId: Int!
+  parachain: Parachain! @index
   leaseRange: String! @index #auctionId-start-end
   firstLease: Int!
   lastLease: Int!
   latestBidAmount: BigInt!
-  auction: Auction! @index
-  activeForAuction: String @index #auctionId
+  auction: Auction @index
+  activeForAuction: String @index #auctionId or 'sudo'
+  winningAmount: BigInt
+  extraAmount: BigInt
+  wonBidFrom: String
   numBlockWon: Int
+  winningResultBlock: Int
+  hasWon: Boolean!
 }
 
 type Bid @entity {

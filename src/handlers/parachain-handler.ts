@@ -3,11 +3,7 @@ import { ChronicleKey } from '../constants';
 import * as Storage from '../services/storage';
 import { Crowdloan } from '../types/models/Crowdloan';
 import { Chronicle } from '../types/models/Chronicle';
-
-import { ParachainLeases } from '../types/models/ParachainLeases';
-import { getParachainId, parseNumber } from '../utils';
-
-const IgnoreParachainIds = [100, 110, 120, 1];
+import { parseNumber } from '../utils';
 
 interface ParaInfo {
   manager: string;
@@ -16,7 +12,7 @@ interface ParaInfo {
 }
 
 export const handleParachainRegistered = async (substrateEvent: SubstrateEvent) => {
-  const { event, extrinsic, block } = substrateEvent;
+  const { event, block } = substrateEvent;
   const { timestamp: createdAt, block: rawBlock } = block;
   const { number: blockNum } = rawBlock.header;
 
@@ -32,46 +28,6 @@ export const handleParachainRegistered = async (substrateEvent: SubstrateEvent) 
     deregistered: false
   });
   logger.info(`new Parachain saved: ${JSON.stringify(parachain, null, 2)}`);
-};
-
-export const handleSlotsLeased = async (substrateEvent: SubstrateEvent) => {
-  const { event, block } = substrateEvent;
-  const { block: rawBlock } = block;
-  const { number: blockNum } = rawBlock.header;
-  const [paraId, from, firstSlot, slotCount, extra, total] = event.data.toJSON() as [
-    number,
-    string,
-    number,
-    number,
-    string,
-    string
-  ];
-
-  const lastSlot = firstSlot + slotCount;
-
-  if (IgnoreParachainIds.includes(paraId)) {
-    logger.info(`Ignore testing parachain ${paraId}`);
-    return;
-  }
-
-  const { id: parachainId } = await Storage.ensureParachain(paraId);
-  const totalUsed = parseNumber(total);
-  logger.info(
-    `Slot leased, with ${JSON.stringify({ paraId, from, firstSlot, lastSlot, extra, total, parachainId }, null, 2)}`
-  );
-
-  const lease = ParachainLeases.create({
-    id: `${paraId}-${firstSlot}-${lastSlot}`,
-    parachainId,
-    firstSlot,
-    lastSlot,
-    blockNum,
-    winningAmount: totalUsed
-  });
-  logger.info(`Lease: ${JSON.stringify(lease, null, 2)}`);
-  await lease.save().catch((err) => {
-    logger.error(`Saving ParachainLeases failed ${err}`);
-  });
 };
 
 export const handleCrowdloanCreated = async (substrateEvent: SubstrateEvent) => {

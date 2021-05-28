@@ -12,15 +12,33 @@ export class ParachainLeases implements Entity {
 
     public id: string;
 
+    public paraId: number;
+
     public parachainId: string;
 
-    public firstSlot: number;
+    public leaseRange: string;
 
-    public lastSlot: number;
+    public firstLease: number;
 
-    public blockNum: number;
+    public lastLease: number;
 
-    public winningAmount: bigint;
+    public latestBidAmount: bigint;
+
+    public auctionId?: string;
+
+    public activeForAuction?: string;
+
+    public winningAmount?: bigint;
+
+    public extraAmount?: bigint;
+
+    public wonBidFrom?: string;
+
+    public numBlockWon?: number;
+
+    public winningResultBlock?: number;
+
+    public hasWon: boolean;
 
 
     async save(): Promise<void>{
@@ -43,6 +61,34 @@ export class ParachainLeases implements Entity {
         }
     }
 
+
+    static async getByParachainId(parachainId: string): Promise<ParachainLeases[] | undefined>{
+      
+      const records = await store.getByField('ParachainLeases', 'parachainId', parachainId);
+      return records.map(record => ParachainLeases.create(record));
+      
+    }
+
+    static async getByLeaseRange(leaseRange: string): Promise<ParachainLeases[] | undefined>{
+      
+      const records = await store.getByField('ParachainLeases', 'leaseRange', leaseRange);
+      return records.map(record => ParachainLeases.create(record));
+      
+    }
+
+    static async getByAuctionId(auctionId: string): Promise<ParachainLeases[] | undefined>{
+      
+      const records = await store.getByField('ParachainLeases', 'auctionId', auctionId);
+      return records.map(record => ParachainLeases.create(record));
+      
+    }
+
+    static async getByActiveForAuction(activeForAuction: string): Promise<ParachainLeases[] | undefined>{
+      
+      const records = await store.getByField('ParachainLeases', 'activeForAuction', activeForAuction);
+      return records.map(record => ParachainLeases.create(record));
+      
+    }
 
 
     static create(record){

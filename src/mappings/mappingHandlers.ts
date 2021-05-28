@@ -7,18 +7,19 @@ import {
   handleCrowdloanCreated,
   handleCrowdloanWon,
   handleParachainRegistered,
-  handleSlotsLeased,
   updateCrowdloanStatus
 } from '../handlers/parachain-handler';
 import {
-  checkAuctionClosed,
+  handleAuctionClosed,
   handleAuctionStarted,
+  handleAuctionWinningOffset,
   handleBidAccepted,
   updateBlockNum,
   updateWinningBlocks
 } from '../handlers/auction-handler';
 import { Chronicle } from '../types/models/Chronicle';
 import { ChronicleKey } from '../constants';
+import { handleNewLeasePeriod, handleSlotsLeased } from '../handlers/lease-handler';
 
 const noop = async () => {};
 
@@ -26,18 +27,20 @@ const eventsMapping = {
   'registrar/Registered': handleParachainRegistered,
   'crowdloan/Created': handleCrowdloanCreated,
   'auctions/AuctionStarted': handleAuctionStarted,
-  'crowdloan/Contributed': handleCrowdloanContributed,
+  'auctions/AuctionClosed': handleAuctionClosed,
+  'auctions/WinningOffset': handleAuctionWinningOffset,
   'auctions/BidAccepted': handleBidAccepted,
   'auctions/Reserved': noop,
   'auctions/Unreserved': noop,
   'crowdloan/HandleBidResult': noop,
   'slots/Leased': handleSlotsLeased,
-  'crowdloan/onboarded': handleCrowdloanWon
+  'slots/NewLeasePeriod': handleNewLeasePeriod,
+  'crowdloan/Contributed': handleCrowdloanContributed,
+  'crowdloan/Onboarded': handleCrowdloanWon
 };
 
 export async function handleBlock(block: SubstrateBlock): Promise<void> {
   await updateBlockNum(block);
-  await checkAuctionClosed(block);
   await updateWinningBlocks(block);
   await updateCrowdloanStatus(block);
 }
@@ -48,19 +51,21 @@ export async function handleEvent(event: SubstrateEvent): Promise<void> {
     block: {
       block: { header }
     },
-    idx
+    idx,
+    extrinsic
   } = event;
 
   const eventType = `${section}/${method}`;
-
+  const { method: extMethod, section: extSection } = extrinsic?.extrinsic.method || {};
   const handler = eventsMapping[eventType];
   if (handler) {
     logger.info(
-      `Event at ${idx} received, block: ${header.number.toNumber()} - ${eventType} ${JSON.stringify(
-        event.toJSON(),
-        null,
-        2
-      )} \n ${JSON.stringify(event.toHuman(), null, 2)}`
+      `
+      Event ${eventType} at ${idx} received, block: ${header.number.toNumber()}, extrinsic: ${extSection}/${extMethod}:
+      -------------
+        ${JSON.stringify(event.toJSON(), null, 2)} ${JSON.stringify(event.toHuman(), null, 2)}
+      =============
+      `
     );
     await handler(event);
   }

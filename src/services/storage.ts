@@ -38,7 +38,7 @@ export const upsert = async <T extends Entity>(
     .then(() => updatedItem as T)
     .catch((err) => {
       logger.error(`Upsert entity failed, ${err.toString()}`);
-      return null;
+      throw err;
     });
 };
 
