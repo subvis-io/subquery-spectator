@@ -50,7 +50,7 @@ type Crowdloan @entity {
   firstSlot: Int!
   lastSlot: Int!
   wonAuctionId: String @index 
-  # contributions: [Contribution] @derivedFrom(field: "fund") # should included only for specific Fund
+  contributions: [Contribution] @derivedFrom(field: "fund")
 }
 
 type AuctionParachain @entity {
