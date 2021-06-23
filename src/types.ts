@@ -20,8 +20,8 @@ export interface CrowdloanReturn {
     ending: number[];
     never?: null;
   };
-  firstSlot: number;
-  lastSlot: number;
+  firstPeriod: number;
+  lastPeriod: number;
   trieIndex: number;
 }
 
