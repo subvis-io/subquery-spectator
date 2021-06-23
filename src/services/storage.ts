@@ -38,7 +38,7 @@ export const upsert = async <T extends Entity>(
     .set(colName, id, updatedItem)
     .then(() => updatedItem as T)
     .catch((err) => {
-      logger.error(`Upsert entity failed, ${err.toString()}`);
+      logger.error(`Upsert entity ${colName} ${JSON.stringify(updatedItem, null, 2)} failed, ${err.toString()}`);
       throw err;
     });
 };
@@ -55,7 +55,7 @@ export const ensureFund = async (paraId: number, modifier?: Record<string, any>)
   const parachainId = await getParachainId(paraId);
   logger.info(`Retrieved parachainId: ${parachainId} for paraId: ${paraId}`);
   const fundId = await getLatestCrowdloanId(parachainId);
-  const { cap, end, trieIndex, raised, lastContribution, ...rest } = fund;
+  const { cap, end, trieIndex, raised, lastContribution, firstPeriod, lastPeriod, ...rest } = fund;
   logger.info(`Fund detail: ${JSON.stringify(fund, null, 2)}`);
 
   return upsert<Crowdloan>('Crowdloan', fundId, null, (cur: Crowdloan) => {
@@ -64,6 +64,8 @@ export const ensureFund = async (paraId: number, modifier?: Record<string, any>)
           id: fundId,
           parachainId,
           ...rest,
+          firstSlot: firstPeriod,
+          lastSlot: lastPeriod,
           status: CrowdloanStatus.STARTED,
           raised: parseNumber(raised) as unknown as bigint,
           cap: parseNumber(cap) as unknown as bigint,
