@@ -14,8 +14,6 @@ export class Crowdloan implements Entity {
 
     public parachainId: string;
 
-    public retiring: boolean;
-
     public depositor: string;
 
     public verifier?: string;
@@ -31,6 +29,18 @@ export class Crowdloan implements Entity {
     public firstSlot: number;
 
     public lastSlot: number;
+
+    public status: string;
+
+    public leaseExpiredBlock?: number;
+
+    public dissolvedBlock?: number;
+
+    public updatedAt?: Date;
+
+    public createdAt?: Date;
+
+    public isFinished?: boolean;
 
     public wonAuctionId?: string;
 
@@ -56,9 +66,16 @@ export class Crowdloan implements Entity {
     }
 
 
-    static async getByRetiring(retiring: boolean): Promise<Crowdloan[] | undefined>{
+    static async getByStatus(status: string): Promise<Crowdloan[] | undefined>{
       
-      const records = await store.getByField('Crowdloan', 'retiring', retiring);
+      const records = await store.getByField('Crowdloan', 'status', status);
+      return records.map(record => Crowdloan.create(record));
+      
+    }
+
+    static async getByIsFinished(isFinished: boolean): Promise<Crowdloan[] | undefined>{
+      
+      const records = await store.getByField('Crowdloan', 'isFinished', isFinished);
       return records.map(record => Crowdloan.create(record));
       
     }

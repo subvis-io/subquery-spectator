@@ -4,6 +4,7 @@ import { Parachain } from '../types/models/Parachain';
 import { Crowdloan } from '../types/models/Crowdloan';
 import { CrowdloanSequence } from '../types/models/CrowdloanSequence';
 import { fetchCrowdloan, fetchParachain, getParachainId, parseNumber } from '../utils';
+import { CrowdloanStatus } from '../types';
 
 export const save = async <T extends Entity>(colName: string, entity: T): Promise<T> => {
   const { id } = entity;
@@ -22,7 +23,7 @@ export const upsert = async <T extends Entity>(
   colName: string,
   id: string,
   updater: Record<string, any>,
-  updateFn?: (entry?: Entity) => T
+  updateFn?: (entry?: Entity) => Omit<T, 'save'>
 ): Promise<T> => {
   const entry = await get(colName, id);
   const updatedItem = entry
@@ -49,38 +50,43 @@ export const ensureParachain = async (paraId: number): Promise<Parachain> => {
   return upsert('Parachain', parachainId, { id: parachainId, paraId, manager, deposit, deregistered: false });
 };
 
-export const ensureFund = async (paraId: number, blockNum = 0): Promise<Crowdloan> => {
+export const ensureFund = async (paraId: number, modifier?: Record<string, any>): Promise<Crowdloan> => {
   const fund = await fetchCrowdloan(paraId);
   const parachainId = await getParachainId(paraId);
   logger.info(`Retrieved parachainId: ${parachainId} for paraId: ${paraId}`);
-  const fundId = await getLatestCrowdloanId(parachainId, blockNum);
+  const fundId = await getLatestCrowdloanId(parachainId);
   const { cap, end, trieIndex, raised, lastContribution, ...rest } = fund;
   logger.info(`Fund detail: ${JSON.stringify(fund, null, 2)}`);
 
-  return upsert<Crowdloan>('Crowdloan', fundId, {
-    id: fundId,
-    retiring: false,
-    parachainId,
-    ...rest,
-    raised: parseNumber(raised),
-    cap: parseNumber(cap),
-    lockExpiredBlock: end,
-    blockNum
+  return upsert<Crowdloan>('Crowdloan', fundId, null, (cur: Crowdloan) => {
+    return !cur
+      ? {
+          id: fundId,
+          parachainId,
+          ...rest,
+          status: CrowdloanStatus.STARTED,
+          raised: parseNumber(raised) as unknown as bigint,
+          cap: parseNumber(cap) as unknown as bigint,
+          lockExpiredBlock: end,
+          isFinished: false,
+          ...modifier
+        }
+      : {
+          id: fundId,
+          ...cur,
+          raised: parseNumber(raised) as unknown as bigint,
+          ...modifier
+        };
   });
 };
 
-export const getLatestCrowdloanId = async (parachainId: string, blockNum = 0) => {
+export const getLatestCrowdloanId = async (parachainId: string) => {
   const seq = await CrowdloanSequence.get(parachainId);
+  const curBlockNum = await api.query.system.number();
   if (seq) {
-    if (blockNum) {
-      seq.curIndex = seq.curIndex + 1;
-      seq.bumpAt = seq.bumpAt ? `${seq.bumpAt}, ${blockNum}` : blockNum.toString();
-      logger.info(`Increase Fund index for parachain: ${parachainId}`);
-      await seq.save();
-    }
     return `${parachainId}-${seq.curIndex}`;
   }
 
-  await CrowdloanSequence.create({ id: parachainId, curIndex: 0 }).save();
+  await CrowdloanSequence.create({ id: parachainId, curIndex: 0, createdAt: new Date(), blockNum: curBlockNum }).save();
   return `${parachainId}-0`;
 };

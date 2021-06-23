@@ -1,3 +1,5 @@
+import { Crowdloan } from './types/models';
+
 type HexNumber = string;
 
 export interface ParachainReturn {
@@ -22,3 +24,12 @@ export interface CrowdloanReturn {
   lastSlot: number;
   trieIndex: number;
 }
+
+export enum CrowdloanStatus {
+  RETIRING = 'Retiring',
+  DISSOLVED = 'Dissolved',
+  STARTED = 'Started',
+  WON = 'Won'
+}
+
+export type CrowdloanUpdater = keyof Crowdloan;

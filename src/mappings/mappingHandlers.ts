@@ -5,7 +5,7 @@ import { SubstrateBlock } from '@subql/types';
 import {
   handleCrowdloanContributed,
   handleCrowdloanCreated,
-  handleCrowdloanWon,
+  handleCrowdloanDissolved,
   handleParachainRegistered,
   updateCrowdloanStatus
 } from '../handlers/parachain-handler';
@@ -36,7 +36,7 @@ const eventsMapping = {
   'slots/Leased': handleSlotsLeased,
   'slots/NewLeasePeriod': handleNewLeasePeriod,
   'crowdloan/Contributed': handleCrowdloanContributed,
-  'crowdloan/Onboarded': handleCrowdloanWon
+  'crowdloan/Dissolved': handleCrowdloanDissolved
 };
 
 export async function handleBlock(block: SubstrateBlock): Promise<void> {

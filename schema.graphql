@@ -40,7 +40,6 @@ type Parachain @entity {
 type Crowdloan @entity {
   id: ID! # generated fund address
   parachain: Parachain!
-  retiring: Boolean! @index
   depositor: String!
   verifier: String
   cap: BigInt!
@@ -49,6 +48,12 @@ type Crowdloan @entity {
   blockNum: Int
   firstSlot: Int!
   lastSlot: Int!
+  status: String! @index
+  leaseExpiredBlock: Int
+  dissolvedBlock: Int
+  updatedAt: Date
+  createdAt: Date
+  isFinished: Boolean @index
   wonAuctionId: String @index 
   contributions: [Contribution] @derivedFrom(field: "fund")
 }
@@ -119,5 +124,6 @@ type Chronicle @entity {
 type CrowdloanSequence @entity {
   id: ID!
   curIndex: Int!
-  bumpAt: String
+  createdAt: Date!
+  blockNum: Int!
 }

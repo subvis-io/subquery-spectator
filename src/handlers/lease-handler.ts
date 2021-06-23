@@ -1,8 +1,9 @@
 import { SubstrateEvent } from '@subql/types';
 import * as Storage from '../services/storage';
-import { parseNumber } from '../utils';
+import { isFundAddress, parseNumber } from '../utils';
 import { Auction } from '../types/models/Auction';
 import { ChronicleKey } from '../constants';
+import { CrowdloanStatus } from '../types';
 
 const IgnoreParachainIds = [100, 110, 120, 1];
 
@@ -46,23 +47,33 @@ export const handleSlotsLeased = async (substrateEvent: SubstrateEvent) => {
     `Slot leased, with ${JSON.stringify({ paraId, from, firstLease, lastLease, extra, total, parachainId }, null, 2)}`
   );
 
-  const [curAuction] =
-    method === 'sudo' || section === 'sudo'
-      ? [
-          {
-            id: null,
-            resultBlock: blockNum
-          }
-        ]
-      : (await Auction.getByOngoing(true)) || [];
+  const [ongoingAuction] = await Auction.getByOngoing(true);
+  const curAuction = ongoingAuction || { id: 'unknown', resultBlock: blockNum, leaseEnd: null };
 
-  if (!curAuction) {
-    logger.error('No active auction found & not a sudo call, this should not happened');
-    return;
+  if (curAuction.id === 'unknown') {
+    logger.info('No active auction found, sudo or system parachain, upsert unknown Auction');
+    await Storage.upsert('Auction', 'unknown', {
+      id: 'unknown',
+      blockNum,
+      status: 'Closed',
+      slotsStart: 0,
+      slotsEnd: 0,
+      closingStart: 0,
+      closingEnd: 0,
+      ongoing: false
+    });
+  }
+
+  if (isFundAddress(from)) {
+    await Storage.ensureFund(paraId, {
+      status: CrowdloanStatus.WON,
+      wonAuctionId: curAuction.id,
+      leaseExpiredBlock: curAuction.leaseEnd
+    });
   }
 
   const { id: auctionId, resultBlock } = curAuction;
-  logger.info(`Resolved auction id, resultBlock: ${curAuction.id}, ${curAuction.resultBlock}`);
+  logger.info(`Resolved auction id ${curAuction.id}, resultBlock: ${curAuction.id}, ${curAuction.resultBlock}`);
 
   await Storage.upsert('ParachainLeases', `${paraId}-${auctionId || 'sudo'}-${firstLease}-${lastLease}`, {
     paraId,
@@ -81,6 +92,4 @@ export const handleSlotsLeased = async (substrateEvent: SubstrateEvent) => {
   }).catch((err) => {
     logger.error(`Upsert ParachainLeases failed ${err}`);
   });
-
-  //TODO: parse from address to determine whether it's crowdloan address or not
 };
