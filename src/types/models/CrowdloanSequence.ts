@@ -14,7 +14,9 @@ export class CrowdloanSequence implements Entity {
 
     public curIndex: number;
 
-    public bumpAt?: string;
+    public createdAt: Date;
+
+    public blockNum: number;
 
 
     async save(): Promise<void>{

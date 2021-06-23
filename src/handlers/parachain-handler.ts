@@ -4,6 +4,7 @@ import * as Storage from '../services/storage';
 import { Crowdloan } from '../types/models/Crowdloan';
 import { Chronicle } from '../types/models/Chronicle';
 import { parseNumber } from '../utils';
+import { CrowdloanStatus } from '../types';
 
 interface ParaInfo {
   manager: string;
@@ -36,7 +37,7 @@ export const handleCrowdloanCreated = async (substrateEvent: SubstrateEvent) => 
   const blockNum = rawBlock.header.number.toNumber();
   const [fundIdx] = event.data.toJSON() as [number];
   await Storage.ensureParachain(fundIdx);
-  const fund = await Storage.ensureFund(fundIdx, blockNum);
+  const fund = await Storage.ensureFund(fundIdx, { blockNum });
   logger.info(`Create Crowdloan: ${JSON.stringify(fund, null, 2)}`);
 };
 
@@ -66,28 +67,32 @@ export const handleCrowdloanContributed = async (substrateEvent: SubstrateEvent)
 
 export const updateCrowdloanStatus = async (block: SubstrateBlock) => {
   const blockNum = block.block.header.number.toNumber();
-  const funds = (await Crowdloan.getByRetiring(false)) || [];
-  await Promise.all(
-    funds
-      .filter((fund) => fund.lockExpiredBlock <= blockNum)
-      .map((fund) => {
-        fund.retiring = true;
-        return fund.save();
-      })
-  );
+  const funds = (await Crowdloan.getByIsFinished(false)) || [];
+
+  for (const fund of funds) {
+    if (fund.status === CrowdloanStatus.STARTED && blockNum >= fund.lockExpiredBlock) {
+      fund.status = CrowdloanStatus.RETIRING;
+      logger.info(`Fund ${fund.id} status change from Started to Retiring`);
+      await fund.save();
+    }
+
+    if (fund.status === CrowdloanStatus.WON && blockNum >= fund.lockExpiredBlock) {
+      fund.status = CrowdloanStatus.RETIRING;
+      logger.info(`Fund ${fund.id} status change from Won to Retiring`);
+      await fund.save();
+    }
+  }
 };
 
-export const handleCrowdloanWon = async (substrateEvent: SubstrateEvent) => {
+export const handleCrowdloanDissolved = async (substrateEvent: SubstrateEvent) => {
   const { event, block } = substrateEvent;
-  const { block: rawBlock } = block;
-  const { curAuctionId } = (await Chronicle.get(ChronicleKey)) || {};
+  const { timestamp: createdAt, block: rawBlock } = block;
   const blockNum = rawBlock.header.number.toNumber();
-  const [fundIdx] = event.data.toJSON() as [number, number];
-  const { lastSlot, ...rest } = await Storage.ensureFund(fundIdx, blockNum);
-  const leasePeriod = api.consts.slots.leasePeriod.toJSON() as number;
-  await Storage.save('Crowdloan', {
-    ...rest,
-    lockExpiredBlock: lastSlot * leasePeriod,
-    wonAuctionId: curAuctionId
+  const [fundIdx] = event.data.toJSON() as [number];
+  await Storage.ensureFund(fundIdx, {
+    status: CrowdloanStatus.DISSOLVED,
+    isFinished: true,
+    updatedAt: new Date(createdAt),
+    dissolvedBlock: blockNum
   });
 };

@@ -7,11 +7,7 @@ import { parseNumber } from '../utils';
 import * as Storage from '../services/storage';
 import { Bid } from '../types/models/Bid';
 import { ParachainLeases } from '../types/models/ParachainLeases';
-
-const isFundAddress = (address: string) => {
-  const hexStr = api.createType('Address', address).toHex();
-  return Buffer.from(hexStr.slice(4, 28), 'hex').toString().startsWith('modlpy/cfund');
-};
+import { isFundAddress } from '../utils';
 
 export const handleAuctionStarted = async (substrateEvent: SubstrateEvent) => {
   const endingPeriod = api.consts.auctions.endingPeriod.toJSON() as number;

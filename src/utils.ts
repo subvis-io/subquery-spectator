@@ -21,5 +21,16 @@ export const fetchParachain = async (paraId: number): Promise<ParachainReturn | 
 
 export const fetchCrowdloan = async (paraId: number): Promise<CrowdloanReturn | null> => {
   const fund = await api.query.crowdloan.funds(paraId);
-  return (fund.toJSON() as unknown) as CrowdloanReturn | null;
+  return fund.toJSON() as unknown as CrowdloanReturn | null;
+};
+
+export const isFundAddress = (address: string) => {
+  const hexStr = api.createType('Address', address).toHex();
+  return Buffer.from(hexStr.slice(4, 28), 'hex').toString().startsWith('modlpy/cfund');
+};
+
+export const getParachainIndex = (address: string) => {
+  const hexStr = api.createType('Address', address).toHex();
+  const hexIndexLE = '0x' + hexStr.slice(28, 32).match(/../g).reverse().join('');
+  return parseInt(hexIndexLE, 10);
 };
