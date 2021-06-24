@@ -52,7 +52,7 @@ export const handleCrowdloanContributed = async (substrateEvent: SubstrateEvent)
 
   const { id: fundId, parachainId } = await Storage.ensureFund(fundIdx);
   const contribution = {
-    id: `${fundIdx}-${contributor}-${nonce}`,
+    id: `${fundIdx}-${contributor}-${createdAt.getTime()}`,
     account: contributor,
     parachainId,
     fundId,
