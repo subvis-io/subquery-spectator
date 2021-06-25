@@ -42,17 +42,19 @@ export const handleCrowdloanCreated = async (substrateEvent: SubstrateEvent) => 
 };
 
 export const handleCrowdloanContributed = async (substrateEvent: SubstrateEvent) => {
-  const { event, extrinsic, block } = substrateEvent;
+  const { event, block, idx } = substrateEvent;
   const { timestamp: createdAt, block: rawBlock } = block;
-  const nonce = extrinsic.extrinsic.nonce.toNumber();
+
   const blockNum = rawBlock.header.number.toNumber();
   const [contributor, fundIdx, amount] = event.data.toJSON() as [string, number, number | string];
   const amtValue = typeof amount === 'string' ? parseNumber(amount) : amount;
   await Storage.ensureParachain(fundIdx);
 
+  logger.info(event.toHuman());
+
   const { id: fundId, parachainId } = await Storage.ensureFund(fundIdx);
   const contribution = {
-    id: `${fundIdx}-${contributor}-${Date.now()}`,
+    id: `${blockNum}-${idx}`,
     account: contributor,
     parachainId,
     fundId,
