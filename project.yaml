@@ -35,7 +35,7 @@ dataSources:
     kind: substrate/Runtime
     filter: 
       specName: kusama
-    startBlock: 7513582
+    startBlock: 7828000
     mapping:
       handlers: 
       - handler: handleBlock
