@@ -43,7 +43,7 @@ type Crowdloan @entity {
   depositor: String!
   verifier: String
   cap: BigInt!
-  raised: BigInt!
+  raised: BigInt! @index
   lockExpiredBlock: Int!
   blockNum: Int
   firstSlot: Int!
@@ -83,14 +83,14 @@ type ParachainLeases @entity {
   wonBidFrom: String
   numBlockWon: Int
   winningResultBlock: Int
-  hasWon: Boolean!
+  hasWon: Boolean! @index
 }
 
 type Bid @entity {
   id: ID!
   auction: Auction!
   winningAuction: Int @index # auctionId
-  blockNum: Int!
+  blockNum: Int! @index
   parachain: Parachain!
   isCrowdloan: Boolean!
   amount: BigInt!
@@ -103,11 +103,11 @@ type Bid @entity {
 
 type Contribution @entity {
   id: ID!
-  account: String!
+  account: String! @index
   parachain: Parachain!
   fund: Crowdloan!
-  amount: BigInt!
-  blockNum: Int!
+  amount: BigInt! @index
+  blockNum: Int! @index
   createdAt: Date!
 }
 

@@ -46,6 +46,27 @@ export class Contribution implements Entity {
     }
 
 
+    static async getByAccount(account: string): Promise<Contribution[] | undefined>{
+      
+      const records = await store.getByField('Contribution', 'account', account);
+      return records.map(record => Contribution.create(record));
+      
+    }
+
+    static async getByAmount(amount: bigint): Promise<Contribution[] | undefined>{
+      
+      const records = await store.getByField('Contribution', 'amount', amount);
+      return records.map(record => Contribution.create(record));
+      
+    }
+
+    static async getByBlockNum(blockNum: number): Promise<Contribution[] | undefined>{
+      
+      const records = await store.getByField('Contribution', 'blockNum', blockNum);
+      return records.map(record => Contribution.create(record));
+      
+    }
+
 
     static create(record){
         let entity = new Contribution(record.id);
