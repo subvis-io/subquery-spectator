@@ -90,6 +90,13 @@ export class ParachainLeases implements Entity {
       
     }
 
+    static async getByHasWon(hasWon: boolean): Promise<ParachainLeases[] | undefined>{
+      
+      const records = await store.getByField('ParachainLeases', 'hasWon', hasWon);
+      return records.map(record => ParachainLeases.create(record));
+      
+    }
+
 
     static create(record){
         let entity = new ParachainLeases(record.id);

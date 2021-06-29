@@ -63,6 +63,13 @@ export class Bid implements Entity {
       
     }
 
+    static async getByBlockNum(blockNum: number): Promise<Bid[] | undefined>{
+      
+      const records = await store.getByField('Bid', 'blockNum', blockNum);
+      return records.map(record => Bid.create(record));
+      
+    }
+
 
     static create(record){
         let entity = new Bid(record.id);
