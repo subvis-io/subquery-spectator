@@ -4,7 +4,7 @@ import { Parachain } from '../types/models/Parachain';
 import { Crowdloan } from '../types/models/Crowdloan';
 import { CrowdloanSequence } from '../types/models/CrowdloanSequence';
 import { fetchCrowdloan, fetchParachain, getParachainId, parseNumber } from '../utils';
-import { CrowdloanStatus } from '../types';
+import { CrowdloanReturn, CrowdloanStatus } from '../types';
 
 export const save = async <T extends Entity>(colName: string, entity: T): Promise<T> => {
   const { id } = entity;
@@ -55,7 +55,8 @@ export const ensureFund = async (paraId: number, modifier?: Record<string, any>)
   const parachainId = await getParachainId(paraId);
   logger.info(`Retrieved parachainId: ${parachainId} for paraId: ${paraId}`);
   const fundId = await getLatestCrowdloanId(parachainId);
-  const { cap, end, trieIndex, raised, lastContribution, firstPeriod, lastPeriod, ...rest } = fund;
+  const { cap, end, trieIndex, raised, lastContribution, firstPeriod, lastPeriod, ...rest } =
+    fund || ({} as CrowdloanReturn);
   logger.info(`Fund detail: ${JSON.stringify(fund, null, 2)}`);
 
   return upsert<Crowdloan>('Crowdloan', fundId, null, (cur: Crowdloan) => {

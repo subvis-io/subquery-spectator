@@ -10,7 +10,7 @@
     "test": "jest",
     "prestart": "npm run build",
     "predebug": "npm run build",
-    "start": "subql-node -f ./ --batch-size 200 -- --unhandled-rejections=strict --trace-warnings",
+    "start": "subql-node -f ./ --batch-size 1 -- --unhandled-rejections=strict --trace-warnings",
     "debug": "node --inspect --unhandled-rejections=strict subql-node -f ./ --debug --batch-size 1",
     "query": "subql-query -n subql-spectator --playground",
     "codegen": "./node_modules/.bin/subql codegen"
