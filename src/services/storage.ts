@@ -34,6 +34,7 @@ export const upsert = async <T extends Entity>(
     ? updateFn()
     : { ...updater, id };
 
+  logger.debug(`UpsertItem: ${JSON.stringify(updatedItem, null, 2)}`);
   return store
     .set(colName, id, updatedItem)
     .then(() => updatedItem as T)
@@ -78,6 +79,7 @@ export const ensureFund = async (paraId: number, modifier?: Record<string, any>)
           id: fundId,
           ...cur,
           raised: parseNumber(raised) as unknown as bigint,
+          cap: parseNumber(cap) as unknown as bigint,
           ...modifier
         };
   });
