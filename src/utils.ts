@@ -1,8 +1,12 @@
 import { CrowdloanReturn, ParachainReturn } from './types';
 import { CrowdloanSequence } from './types/models/CrowdloanSequence';
 
-export const parseNumber = (hexOrNum: string | number) =>
-  typeof hexOrNum === 'string' ? parseInt(hexOrNum.replace(/^0x/, ''), 16) || 0 : hexOrNum;
+export const parseNumber = (hexOrNum: string | number | undefined) => {
+  if (!hexOrNum) {
+    return 0;
+  }
+  return hexOrNum === 'string' ? parseInt(hexOrNum.replace(/^0x/, ''), 16) || 0 : hexOrNum;
+};
 
 export const getParachainId = async (paraId: number | ParachainReturn) => {
   if (typeof paraId === 'number') {
