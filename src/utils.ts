@@ -5,10 +5,7 @@ export const parseNumber = (hexOrNum: string | number | undefined): number => {
   if (!hexOrNum) {
     return 0;
   }
-  const result = typeof hexOrNum === 'string' ? parseInt(hexOrNum.replace(/^0x/, ''), 16) || 0 : hexOrNum;
-
-  logger.info(`parse cap result: ${result} orgigin: ${hexOrNum}`);
-  return result;
+  return typeof hexOrNum === 'string' ? parseInt(hexOrNum.replace(/^0x/, ''), 16) || 0 : hexOrNum;
 };
 
 export const getParachainId = async (paraId: number | ParachainReturn) => {
