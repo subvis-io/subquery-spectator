@@ -25,6 +25,7 @@ export const fetchParachain = async (paraId: number): Promise<ParachainReturn | 
 
 export const fetchCrowdloan = async (paraId: number): Promise<CrowdloanReturn | null> => {
   const fund = await api.query.crowdloan.funds(paraId);
+  logger.info(`Fetched crowloan ${paraId}: ${JSON.stringify(fund, null, 2)}`);
   return fund.toJSON() as unknown as CrowdloanReturn | null;
 };
 
