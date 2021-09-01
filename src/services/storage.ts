@@ -89,9 +89,33 @@ export const getLatestCrowdloanId = async (parachainId: string) => {
   const seq = await CrowdloanSequence.get(parachainId);
   const curBlockNum = await api.query.system.number();
   if (seq) {
-    return `${parachainId}-${seq.curIndex}`;
+    const crowdloanIdx = seq.curIndex;
+    const isReCreateCrowdloan = await getIsReCreateCrowdloan(`${parachainId}-${crowdloanIdx}`);
+    let curIdex = crowdloanIdx;
+    if (isReCreateCrowdloan) {
+      curIdex = crowdloanIdx + 1;
+      seq.curIndex = curIdex;
+      await seq.save();
+    }
+
+    logger.info(`Crowdloan: ${parachainId} fundId curIndex: ${curIdex}`);
+    return `${parachainId}-${curIdex}`;
   }
 
   await CrowdloanSequence.create({ id: parachainId, curIndex: 0, createdAt: new Date(), blockNum: curBlockNum }).save();
+  logger.info(`Crowdloan: ${parachainId} fundId: 0`);
   return `${parachainId}-0`;
+};
+
+export const getIsReCreateCrowdloan = async (fundId: string): Promise<Boolean> => {
+  const fund = await Crowdloan.get(fundId);
+  const isReCreateCrowdloan = !!(
+    fund?.dissolvedBlock &&
+    fund?.status === CrowdloanStatus.DISSOLVED &&
+    fund?.isFinished
+  );
+  logger.info(` =======
+  Crowdloan: ${fundId} - DissolveBlock: ${fund?.dissolvedBlock} - Status: ${fund?.status} re-create crowdloan: ${isReCreateCrowdloan}
+  ======`);
+  return isReCreateCrowdloan;
 };
