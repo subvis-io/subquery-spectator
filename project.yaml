@@ -1,6 +1,6 @@
 specVersion: 0.0.1
 description: Substrate slots auction data collector
-repository: git@github.com:subvis-io/subquery-spectator.git
+repository: git@github.com:interlay/subquery-spectator.git
 schema: ./schema.graphql
 network:
   endpoint: wss://kusama.api.onfinality.io/public-ws

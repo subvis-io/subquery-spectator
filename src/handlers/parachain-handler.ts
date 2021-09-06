@@ -1,10 +1,9 @@
 import { SubstrateBlock, SubstrateEvent } from '@subql/types';
-import { ChronicleKey } from '../constants';
 import * as Storage from '../services/storage';
 import { Crowdloan } from '../types/models/Crowdloan';
-import { Chronicle } from '../types/models/Chronicle';
 import { parseNumber } from '../utils';
 import { CrowdloanStatus } from '../types';
+import {Contribution} from '../types/index';
 
 interface ParaInfo {
   manager: string;
@@ -65,6 +64,24 @@ export const handleCrowdloanContributed = async (substrateEvent: SubstrateEvent)
 
   logger.info(`contribution for ${JSON.stringify(contribution, null, 2)}`);
   await Storage.save('Contribution', contribution);
+};
+
+export const handleCrowdloanMemo = async (substrateEvent: SubstrateEvent) => {
+  const {event, block} = substrateEvent;
+  const {block: rawBlock} = block;
+
+  const blockNum = rawBlock.header.number.toNumber();
+  const [contributor, fundIdx, memo] = event.data.toJSON() as [string, number, string];
+  await Storage.ensureParachain(fundIdx);
+  await Storage.ensureFund(fundIdx);
+
+  const contributions = await Contribution.getByAccount(contributor);
+  const latestContributionBeforeMemo = contributions.filter((contrib) => contrib.blockNum <= blockNum).sort((a, b) => a.blockNum - b.blockNum).pop();
+
+  if (!latestContributionBeforeMemo) return;
+  latestContributionBeforeMemo.memo = memo;
+  logger.info(`memo for ${JSON.stringify(latestContributionBeforeMemo, null, 2)}`);
+  await Storage.save('Contribution', latestContributionBeforeMemo);
 };
 
 export const updateCrowdloanStatus = async (block: SubstrateBlock) => {

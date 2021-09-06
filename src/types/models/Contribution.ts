@@ -14,6 +14,8 @@ export class Contribution implements Entity {
 
     public account: string;
 
+    public memo?: string;
+
     public parachainId: string;
 
     public fundId: string;
@@ -49,6 +51,13 @@ export class Contribution implements Entity {
     static async getByAccount(account: string): Promise<Contribution[] | undefined>{
       
       const records = await store.getByField('Contribution', 'account', account);
+      return records.map(record => Contribution.create(record));
+      
+    }
+
+    static async getByMemo(memo: string): Promise<Contribution[] | undefined>{
+      
+      const records = await store.getByField('Contribution', 'memo', memo);
       return records.map(record => Contribution.create(record));
       
     }
