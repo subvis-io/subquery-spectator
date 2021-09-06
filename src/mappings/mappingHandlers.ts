@@ -1,11 +1,11 @@
-import { SignedBlock } from '@polkadot/types/interfaces';
-import { SubstrateExtrinsic, SubstrateEvent } from '@subql/types';
+import { SubstrateEvent } from '@subql/types';
 import { SubstrateBlock } from '@subql/types';
 
 import {
   handleCrowdloanContributed,
   handleCrowdloanCreated,
   handleCrowdloanDissolved,
+  handleCrowdloanMemo,
   handleParachainRegistered,
   updateCrowdloanStatus
 } from '../handlers/parachain-handler';
@@ -36,6 +36,7 @@ const eventsMapping = {
   'slots/Leased': handleSlotsLeased,
   'slots/NewLeasePeriod': handleNewLeasePeriod,
   'crowdloan/Contributed': handleCrowdloanContributed,
+  'crowdloan/MemoUpdated': handleCrowdloanMemo,
   'crowdloan/Dissolved': handleCrowdloanDissolved
 };
 

@@ -104,6 +104,7 @@ type Bid @entity {
 type Contribution @entity {
   id: ID!
   account: String! @index
+  memo: String @index
   parachain: Parachain!
   fund: Crowdloan!
   amount: BigInt! @index
