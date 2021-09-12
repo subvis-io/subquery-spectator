@@ -1,11 +1,20 @@
 import { CrowdloanReturn, ParachainReturn } from './types';
-import { CrowdloanSequence } from './types/models/CrowdloanSequence';
 
 export const parseNumber = (hexOrNum: string | number | undefined): number => {
   if (!hexOrNum) {
     return 0;
   }
   return typeof hexOrNum === 'string' ? parseInt(hexOrNum.replace(/^0x/, ''), 16) || 0 : hexOrNum;
+};
+
+export const parseBigInt = (data) => {
+  if (data !== undefined) {
+    return JSON.stringify(data, (_, v) => (typeof v === 'bigint' ? `${v}#bigint` : v)).replace(
+      /"(-?\d+)#bigint"/g,
+      (_, a) => a
+    );
+  }
+  return 0;
 };
 
 export const getParachainId = async (paraId: number | ParachainReturn) => {

@@ -64,11 +64,15 @@ export const handleSlotsLeased = async (substrateEvent: SubstrateEvent) => {
     });
   }
 
+  logger.info(`handleSlotsLeased isFundAddress - from: ${from} - ${isFundAddress(from)}`);
   if (isFundAddress(from)) {
+    logger.info(`handleSlotsLeased update - parachain ${paraId} from Started to Won status`);
     await Storage.ensureFund(paraId, {
       status: CrowdloanStatus.WON,
       wonAuctionId: curAuction.id,
       leaseExpiredBlock: curAuction.leaseEnd
+    }).catch((err) => {
+      logger.error(`Upsert Crowdloan failed ${err}`);
     });
   }
 
