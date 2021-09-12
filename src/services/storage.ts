@@ -3,7 +3,7 @@ import assert from 'assert';
 import { Parachain } from '../types/models/Parachain';
 import { Crowdloan } from '../types/models/Crowdloan';
 import { CrowdloanSequence } from '../types/models/CrowdloanSequence';
-import { fetchCrowdloan, fetchParachain, getParachainId, parseNumber } from '../utils';
+import { fetchCrowdloan, fetchParachain, getParachainId, parseNumber, parseBigInt } from '../utils';
 import { CrowdloanReturn, CrowdloanStatus } from '../types';
 
 export const save = async <T extends Entity>(colName: string, entity: T): Promise<T> => {
@@ -58,7 +58,7 @@ export const ensureFund = async (paraId: number, modifier?: Record<string, any>)
   const fundId = await getLatestCrowdloanId(parachainId);
   const { cap, end, trieIndex, raised, lastContribution, firstPeriod, lastPeriod, ...rest } =
     fund || ({} as CrowdloanReturn);
-  logger.info(`Fund detail: ${JSON.stringify(fund, null, 2)}`);
+  logger.info(`Fund detail: ${JSON.stringify(fund, null, 2)} - cap: ${cap} - raised: ${raised}`);
 
   return upsert<Crowdloan>('Crowdloan', fundId, null, (cur: Crowdloan) => {
     return !cur
@@ -78,8 +78,12 @@ export const ensureFund = async (paraId: number, modifier?: Record<string, any>)
       : {
           id: fundId,
           ...cur,
-          raised: parseNumber(raised) as unknown as bigint,
-          cap: parseNumber(cap) as unknown as bigint,
+          raised:
+            raised === undefined
+              ? (parseBigInt(cur.raised) as unknown as bigint)
+              : (parseNumber(raised) as unknown as bigint),
+          cap:
+            cap === undefined ? (parseBigInt(cur.cap) as unknown as bigint) : (parseNumber(cap) as unknown as bigint),
           ...modifier
         };
   });
@@ -95,6 +99,7 @@ export const getLatestCrowdloanId = async (parachainId: string) => {
     if (isReCreateCrowdloan) {
       curIdex = crowdloanIdx + 1;
       seq.curIndex = curIdex;
+      seq.blockNum = curBlockNum.toNumber();
       await seq.save();
     }
 

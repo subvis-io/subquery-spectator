@@ -1,8 +1,6 @@
 import { SubstrateBlock, SubstrateEvent } from '@subql/types';
-import { ChronicleKey } from '../constants';
 import * as Storage from '../services/storage';
 import { Crowdloan } from '../types/models/Crowdloan';
-import { Chronicle } from '../types/models/Chronicle';
 import { parseNumber } from '../utils';
 import { CrowdloanStatus } from '../types';
 
@@ -78,7 +76,7 @@ export const updateCrowdloanStatus = async (block: SubstrateBlock) => {
       await fund.save();
     }
 
-    if (fund.status === CrowdloanStatus.WON && blockNum >= fund.lockExpiredBlock) {
+    if (fund.status === CrowdloanStatus.WON && blockNum >= fund.leaseExpiredBlock) {
       fund.status = CrowdloanStatus.RETIRING;
       logger.info(`Fund ${fund.id} status change from Won to Retiring`);
       await fund.save();

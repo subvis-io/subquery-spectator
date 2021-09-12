@@ -32,9 +32,9 @@
   },
   "resolutions": {
     "@polkadot/api": "4.17.1",
-    "@subql/node": "^0.18.0"
+    "@subql/node": "^0.20.3"
   },
   "dependencies": {
-    "@subql/node": "^0.18.0"
+    "@subql/node": "^0.20.3"
   }
 }
