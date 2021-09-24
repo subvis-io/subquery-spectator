@@ -92,9 +92,9 @@ const markParachainLeases = async (
     parachainId,
     firstLease: leaseStart,
     lastLease: leaseEnd,
-    auctionId,
+    auctionId: auctionId?.toString(),
     latestBidAmount: bidAmount,
-    activeForAuction: auctionId,
+    activeForAuction: auctionId?.toString(),
     hasWon: false
   });
 };
@@ -152,7 +152,7 @@ export const handleBidAccepted = async (substrateEvent: SubstrateEvent) => {
     const { id } = await Storage.save('AuctionParachain', {
       id: `${paraId}-${firstSlot}-${lastSlot}-${auctionId}`,
       parachainId,
-      auctionId,
+      auctionId:auctionId?.toString(),
       firstSlot,
       lastSlot,
       createdAt,
