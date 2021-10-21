@@ -11,40 +11,51 @@ network:
 
 # definitions:
 #   - mapping: &fnMapping
-#     handlers: 
+#     handlers:
 #       - handler: handleBlock
 #         kind: substrate/BlockHandler
 #       - handler: handleEvent
 #         kind: substrate/EventHandler
 
-
 dataSources:
   - name: RococoRuntime
     kind: substrate/Runtime
-    filter: 
+    filter:
       specName: rococo
     startBlock: 357245
-    mapping: 
-      handlers: 
-      - handler: handleBlock
-        kind: substrate/BlockHandler
-      - handler: handleEvent
-        kind: substrate/EventHandler
+    mapping:
+      handlers:
+        - handler: handleBlock
+          kind: substrate/BlockHandler
+        - handler: handleEvent
+          kind: substrate/EventHandler
 
   - name: KusamaRuntime
     kind: substrate/Runtime
-    filter: 
+    filter:
       specName: kusama
     startBlock: 7828000 #8231811 #7828000
     mapping:
-      handlers: 
-      - handler: handleBlock
-        kind: substrate/BlockHandler
-      - handler: handleEvent
-        kind: substrate/EventHandler
-        
-        #   filter:
-        #     module: balances
-        #     method: Deposit
-        # - handler: handleCall
-        #   kind: substrate/CallHandler
+      handlers:
+        - handler: handleBlock
+          kind: substrate/BlockHandler
+        - handler: handleEvent
+          kind: substrate/EventHandler
+
+          #   filter:
+          #     module: balances
+          #     method: Deposit
+          # - handler: handleCall
+          #   kind: substrate/CallHandler
+
+  - name: PolkadotRuntime
+    kind: substrate/Runtime
+    filter:
+      specName: polkadot
+    startBlock: 7345280
+    mapping:
+      handlers:
+        - handler: handleBlock
+          kind: substrate/BlockHandler
+        - handler: handleEvent
+          kind: substrate/EventHandler
