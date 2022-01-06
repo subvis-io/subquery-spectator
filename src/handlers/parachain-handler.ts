@@ -3,7 +3,7 @@ import * as Storage from '../services/storage';
 import { Crowdloan } from '../types/models/Crowdloan';
 import { parseNumber } from '../utils';
 import { CrowdloanStatus } from '../types';
-import {Contribution} from '../types/index';
+import { Contribution } from '../types/index';
 
 interface ParaInfo {
   manager: string;
@@ -67,8 +67,8 @@ export const handleCrowdloanContributed = async (substrateEvent: SubstrateEvent)
 };
 
 export const handleCrowdloanMemo = async (substrateEvent: SubstrateEvent) => {
-  const {event, block} = substrateEvent;
-  const {block: rawBlock} = block;
+  const { event, block } = substrateEvent;
+  const { block: rawBlock } = block;
 
   const blockNum = rawBlock.header.number.toNumber();
   const [contributor, fundIdx, memo] = event.data.toJSON() as [string, number, string];
@@ -80,7 +80,7 @@ export const handleCrowdloanMemo = async (substrateEvent: SubstrateEvent) => {
 
   if (!latestContributionBeforeMemo) return;
   latestContributionBeforeMemo.memo = memo;
-  logger.info(`memo for ${JSON.stringify(latestContributionBeforeMemo, null, 2)}`);
+  logger.info(`Adding memo ${memo} for contributor ${contributor} at block ${blockNum}`);
   await Storage.save('Contribution', latestContributionBeforeMemo);
 };
 
